@@ -1,3 +1,7 @@
+# Verification status — FAIL (2026-08-28 UTC)
+
+Independent verification of candidate `26f715e4e8362ad7fd9b0327960563d988cb76e3` at <https://accessible-page-capture.sociobot.in> is **FAIL**. The product and deployment otherwise passed fresh clean-install, full-suite, live, privacy, accessibility, PWA, response-policy, and performance checks. The release blocker is contract coverage: the landing/README promise that packets contain page address/title, ordered labelled control events, and the user note, but `.factory/claims.json` has no claim/test for those visitor-reliant core assertions. See `.factory/verification-2.md` for exact evidence and required remediation. No product code was modified by verification.
+
 # Accessible Page Capture — repair handoff
 
 Work order: `accessible-page-capture-repair-1`
