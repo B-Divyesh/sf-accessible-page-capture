@@ -1,0 +1,17 @@
+{
+  "slug": "accessible-page-capture",
+  "title": "Accessible Page Capture",
+  "summary": "Record an access barrier and export a private issue packet.",
+  "territory": "utilities",
+  "artifact_class": "browser-extension",
+  "user": "Low-vision workers and colleagues who need to report one inaccessible web interaction with enough evidence to fix it.",
+  "smallest_useful_product": "A browser extension that records an explicit 30-second interaction trace, page URL, focused element labels, and an optional user note, then exports a redacted Markdown or JSON issue packet.",
+  "monetization": "freemium",
+  "constraints": [
+    "Recording starts and stops only after an explicit action.",
+    "A preview appears before export.",
+    "Typed values and password fields are never recorded.",
+    "The extension must work with a keyboard and screen reader.",
+    "Do not make legal conformance claims."
+  ]
+}
