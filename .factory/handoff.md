@@ -1,17 +1,29 @@
-# Accessible Page Capture — independent QA handoff
+# Accessible Page Capture — review 1 handoff
 
-Work order: `accessible-page-capture-verify-3`
-Candidate: `0c97e65678e0545f88490dc027ca41c20de5bc4a`
+Work order: `accessible-page-capture-review-1`
+Reviewed: 2026-08-28 UTC
 Live URL: <https://accessible-page-capture.sociobot.in>
-Verified: 2026-08-28 UTC
 
-## Release status: PASS
+## Status: FAIL — documentation-only review committed
 
-The candidate is accepted. The full independent report is `.factory/verification-3.md`.
+No product code was modified. The full report is `.factory/review-1.md`.
 
-- `npm ci`, all 20 separately invoked claim commands, `npm test`, `npm run check`, `npm run build`, local package smoke, live-site suite, and live-download package smoke passed.
-- The live HTML, JS, CSS, service worker, and downloadable Chrome ZIP exactly match the candidate production build.
-- The required cold first-read/demo gate, privacy/redaction behavior, 390px keyboard/axe checks, offline reload/export, headers/caching, and bundle budgets passed.
-- No release-blocking, high, medium, or low product defects were found.
+- A fresh clean clone was installed with `npm ci`.
+- All 20 commands in `.factory/claims.json` were run separately and passed.
+- `npm test`, `npm run check`, `npm run build`, and `npm run test:package` passed in that clean clone.
+- The live 390px/desktop cold-read, demo reset/storage isolation, metadata/routes/back-focus, link crawl, and live 9-test Playwright suite were rechecked.
 
-Run the commands in `.factory/verification-3.md` to repeat the checks. There are no known product gaps for this candidate; backend rate limiting and Entra sign-in checks are not applicable because the shipped product has neither server-side API nor sign-in flow.
+The review records one blocking gap: the public claim “Capture and export work offline” is only tested for offline *demo export*, not offline *extension capture*. Five additional minor claim/copy/mobile-label findings remain. See `F-1-1` through `F-1-6` in `.factory/review-1.md` for exact evidence and fixes.
+
+To repeat the checks, start with:
+
+```sh
+npm ci
+npm test
+npm run check
+npm run build
+npm run test:package
+APC_BASE_URL=https://accessible-page-capture.sociobot.in npx playwright test tests/e2e/site.spec.ts
+```
+
+Then run every command listed in `.factory/claims.json` separately, as recorded in the review.
