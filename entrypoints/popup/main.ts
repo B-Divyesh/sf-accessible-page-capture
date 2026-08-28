@@ -1,7 +1,8 @@
 import './style.css';
-import { buildJson, buildMarkdown, licenseKey, licenseVerdictKey, sessionKey, teamProfileKey, type CaptureSession, type TeamProfile } from '../../lib/capture';
+import { buildJson, buildMarkdown, safeUrl, sessionKey, type CaptureSession } from '../../lib/capture';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
+const viewStatus = document.querySelector<HTMLDivElement>('#view-status')!;
 let session: CaptureSession | undefined;
 let timer: number | undefined;
 let error = '';
@@ -12,8 +13,11 @@ async function message(payload: object) {
   return chrome.runtime.sendMessage(payload) as Promise<{ ok: boolean; session?: CaptureSession; error?: string }>;
 }
 
-async function stored<T>(key: string): Promise<T | undefined> {
-  return (await chrome.storage.local.get(key))[key] as T | undefined;
+function announceView() {
+  const heading = app.querySelector<HTMLElement>('#page-title');
+  if (!heading) return;
+  heading.focus({ preventScroll: true });
+  viewStatus.textContent = heading.textContent || document.title;
 }
 
 function remainingSeconds(): number {
@@ -36,13 +40,9 @@ function landing() {
       <li>Nothing records before you start.</li>
       <li>Typed values stay out of the packet.</li>
       <li>Markdown and JSON exports are free.</li>
-    </ul>
-    <details class="team-settings">
-      <summary>Team handoff settings</summary>
-      <div id="team-panel"><p class="muted">Checking your license…</p></div>
-    </details>`;
+    </ul>`;
   app.querySelector<HTMLButtonElement>('#start')!.addEventListener('click', startCapture);
-  void renderTeamPanel();
+  announceView();
 }
 
 function recording() {
@@ -61,6 +61,7 @@ function recording() {
     </section>`;
   app.querySelector<HTMLButtonElement>('#stop')!.addEventListener('click', stopCapture);
   app.querySelector<HTMLButtonElement>('#discard')!.addEventListener('click', discardCapture);
+  announceView();
   timer = window.setInterval(async () => {
     const seconds = app.querySelector('#seconds');
     if (seconds) seconds.textContent = String(remainingSeconds());
@@ -86,7 +87,7 @@ function preview() {
       <h1 id="page-title" tabindex="-1">Check the issue packet</h1>
       ${session.stopReason === 'limit' ? '<p class="notice">The capture stopped at the 30-second limit.</p>' : ''}
       <p class="page-title">${escapeHtml(session.pageTitle || 'Untitled page')}</p>
-      <p class="page-url">${escapeHtml(session.pageUrl)}</p>
+      <p class="page-url">${escapeHtml(safeUrl(session.pageUrl))}</p>
       <label for="note">What were you trying to do? <span>(optional)</span></label>
       <textarea id="note" rows="3" maxlength="1000">${escapeHtml(session.note)}</textarea>
       <h2>${session.events.length} trace ${session.events.length === 1 ? 'event' : 'events'}</h2>
@@ -100,6 +101,7 @@ function preview() {
   app.querySelector<HTMLButtonElement>('#markdown')!.addEventListener('click', () => exportPacket('markdown'));
   app.querySelector<HTMLButtonElement>('#json')!.addEventListener('click', () => exportPacket('json'));
   app.querySelector<HTMLButtonElement>('#again')!.addEventListener('click', discardCapture);
+  announceView();
 }
 
 async function startCapture() {
@@ -127,9 +129,7 @@ async function exportPacket(format: 'markdown' | 'json') {
   if (!session) return;
   session.note = app.querySelector<HTMLTextAreaElement>('#note')?.value || '';
   await chrome.storage.local.set({ [sessionKey]: session });
-  const verdict = await stored<{ valid: boolean }>(licenseVerdictKey);
-  const profile = verdict?.valid ? await stored<TeamProfile>(teamProfileKey) : undefined;
-  const body = format === 'markdown' ? buildMarkdown(session, profile) : buildJson(session, profile);
+  const body = format === 'markdown' ? buildMarkdown(session) : buildJson(session);
   const mime = format === 'markdown' ? 'text/markdown' : 'application/json';
   const blobUrl = URL.createObjectURL(new Blob([body], { type: `${mime};charset=utf-8` }));
   try {
@@ -137,53 +137,6 @@ async function exportPacket(format: 'markdown' | 'json') {
     const button = app.querySelector<HTMLButtonElement>(format === 'markdown' ? '#markdown' : '#json');
     if (button) button.textContent = `${format === 'markdown' ? 'Markdown' : 'JSON'} ready`;
   } finally { window.setTimeout(() => URL.revokeObjectURL(blobUrl), 5000); }
-}
-
-async function verifyLicense(token: string): Promise<boolean> {
-  const response = await fetch(`https://api.sociobot.in/api/v1/products/accessible-page-capture/verify?license=${encodeURIComponent(token)}`);
-  if (!response.ok) throw new Error('The license service could not be reached. Try again when you are online.');
-  const result = await response.json() as { valid: boolean };
-  await chrome.storage.local.set({ [licenseKey]: token, [licenseVerdictKey]: { valid: result.valid, checkedAt: Date.now() } });
-  return result.valid;
-}
-
-async function renderTeamPanel() {
-  const panel = app.querySelector<HTMLDivElement>('#team-panel');
-  if (!panel) return;
-  const token = await stored<string>(licenseKey);
-  const verdict = await stored<{ valid: boolean; checkedAt: number }>(licenseVerdictKey);
-  if (token && (!verdict || Date.now() - verdict.checkedAt > 86_400_000)) {
-    try { await verifyLicense(token); } catch { /* cached access remains available */ }
-  }
-  const current = await stored<{ valid: boolean }>(licenseVerdictKey);
-  if (current?.valid) {
-    const profile = await stored<TeamProfile>(teamProfileKey) || { teamName: '', routeTo: '' };
-    panel.innerHTML = `<p class="success">Team handoff is active.</p>
-      <label for="team-name">Team name</label><input id="team-name" maxlength="80" value="${escapeHtml(profile.teamName)}">
-      <label for="route-to">Route reports to</label><input id="route-to" maxlength="120" value="${escapeHtml(profile.routeTo)}" placeholder="Accessibility triage">
-      <button class="secondary" id="save-team">Save team profile</button><p class="muted">These fields appear in exports. They stay on this browser.</p>`;
-    panel.querySelector<HTMLButtonElement>('#save-team')!.addEventListener('click', async () => {
-      const teamName = panel.querySelector<HTMLInputElement>('#team-name')!.value;
-      const routeTo = panel.querySelector<HTMLInputElement>('#route-to')!.value;
-      await chrome.storage.local.set({ [teamProfileKey]: { teamName, routeTo } });
-      panel.querySelector<HTMLButtonElement>('#save-team')!.textContent = 'Team profile saved';
-    });
-    return;
-  }
-  panel.innerHTML = `<p>Add team routing fields to each export. <strong>$39 once.</strong></p>
-    <a class="button-link" href="https://api.sociobot.in/api/v1/products/accessible-page-capture/checkout" target="_blank">Buy team handoff</a>
-    ${token && current && !current.valid ? '<p class="notice">This license is no longer active.</p>' : ''}
-    <label for="license">Have a license? Paste it</label>
-    <input id="license" type="password" autocomplete="off">
-    <button class="secondary" id="verify">Verify license</button><p id="license-status" class="muted" aria-live="polite"></p>`;
-  panel.querySelector<HTMLButtonElement>('#verify')!.addEventListener('click', async () => {
-    const value = panel.querySelector<HTMLInputElement>('#license')!.value.trim();
-    const status = panel.querySelector<HTMLParagraphElement>('#license-status')!;
-    if (!value) { status.textContent = 'Paste a license token first.'; return; }
-    status.textContent = 'Checking license…';
-    try { status.textContent = await verifyLicense(value) ? 'License verified.' : 'That license is not active.'; await renderTeamPanel(); }
-    catch (caught) { status.textContent = caught instanceof Error ? caught.message : 'The license could not be checked.'; }
-  });
 }
 
 async function init() {

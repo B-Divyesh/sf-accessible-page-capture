@@ -35,22 +35,9 @@ Audited 2026-08-28. Counts treat hyphenated terms and prices as one word. Labels
 | Clear limits | 2 | — |
 | This is evidence, not a verdict | 6 | — |
 | It does not run an automated accessibility audit. | 8 | — |
-| It does not record a continuous browsing session. | 8 | — |
-| It does not submit a report without your action. | 9 | — |
+| It records only the page where you start. | 8 | — |
+| It does not export a packet without your action. | 9 | — |
 | It does not certify legal compliance. | 6 | — |
-| Optional team handoff | 3 | — |
-| Add a route to every packet | 6 | — |
-| Save a team name and triage destination in the extension. | 10 | — |
-| These fields stay in your browser. | 6 | — |
-| $39 one-time purchase | 3 | — |
-| Team name in each export | 5 | — |
-| Triage destination in each export | 5 | — |
-| Free capture and export stay unchanged | 6 | — |
-| Buy team handoff | 3 | — |
-| Have a license? | 3 | — |
-| Paste it | 2 | — |
-| Sociobot/Dodo is the merchant of record. | 6 | — |
-| Refunds revoke the license. | 4 | — |
 | Record an access barrier and export a private issue packet. | 10 | — |
 | Hero art generated for this product. | 6 | — |
 
@@ -63,7 +50,6 @@ First-screen read-aloud: “Record an access barrier others can replay. For low-
 | Exported report | packet |
 | Recorded sequence | trace |
 | Accessibility problem | access barrier |
-| Optional paid feature | team handoff |
 | Recording period | capture |
 | Example workspace | demo |
 

@@ -4,7 +4,7 @@ Record an access barrier and export a private issue packet.
 
 Accessible Page Capture is a Chrome MV3 extension for low-vision workers and the colleagues supporting them. It records one explicit focus and control trace for up to 30 seconds. The user previews the packet, adds a note, then exports Markdown or JSON.
 
-Typed values and passwords never enter the packet. Sensitive URL parameters are redacted. Capture and export work offline. Individual exports cost $0.
+Typed values and passwords never enter the packet. Every URL query value is redacted. Capture and export work offline. Individual exports cost $0.
 
 Live site: <https://accessible-page-capture.sociobot.in>
 
@@ -17,11 +17,11 @@ One-click demo: <https://accessible-page-capture.sociobot.in/demo>
 - Accessible control labels and roles
 - A user-written goal or note
 
-It does not record by default. It does not capture screenshots, typed values, page content, or a continuous session. A packet is supporting evidence, not an accessibility certification.
+It does not record by default. It does not capture screenshots, typed values, page content, or another page after navigation. A packet is supporting evidence, not an accessibility certification.
 
 ## Run locally
 
-Requires Node.js 20 or newer.
+Requires Node.js 22 or newer.
 
 ```sh
 npm install
@@ -40,15 +40,9 @@ The build creates:
 
 To install the local build, open `chrome://extensions`, enable Developer mode, choose “Load unpacked,” and select `.output/chrome-mv3`.
 
-## Optional team handoff
-
-The $39 one-time team handoff adds a team name and triage destination to exports. Core capture, preview, redaction, and export remain free. Checkout and license verification use the Sociobot billing API. No product ID or payment-provider key is stored here.
-
-The v1 static architecture does not host a shared remote inbox. See `.factory/handoff.md` for that honest scope boundary.
-
 ## Privacy and security
 
-Capture data stays in `chrome.storage.local`. The demo uses only the `demo:accessible-page-capture:` localStorage prefix. The free path makes no external request. License verification sends only the pasted license token to `api.sociobot.in`.
+Capture data stays in `chrome.storage.local`. The demo uses only the `demo:accessible-page-capture:` localStorage prefix. Capture and export make no outside request.
 
 The site loads no third-party scripts, fonts, or analytics. See `/privacy` and `/terms` on the deployed site.
 

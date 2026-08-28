@@ -10,3 +10,4 @@ const latest = (await Promise.all(candidates.map(async (name) => ({ name, time: 
   .sort((a, b) => b.time - a.time)[0];
 if (!latest) throw new Error('Could not locate extension zip');
 await copyFile(join(zipDir, latest.name), join(out, 'accessible-page-capture-chrome.zip'));
+await copyFile(join(process.cwd(), 'dist', 'site', 'index.html'), join(process.cwd(), 'dist', 'site', '404.html'));

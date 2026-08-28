@@ -41,11 +41,7 @@ export function safeUrl(raw: string): string {
     url.username = '';
     url.password = '';
     url.hash = '';
-    for (const key of [...url.searchParams.keys()]) {
-      if (/token|key|auth|session|password|pass|secret|email/i.test(key)) {
-        url.searchParams.set(key, '[redacted]');
-      }
-    }
+    for (const key of new Set(url.searchParams.keys())) url.searchParams.set(key, '[redacted]');
     return url.toString();
   } catch {
     return '[page URL unavailable]';
@@ -94,7 +90,9 @@ export function accessibleLabel(element: Element): string {
   if (alt) return alt;
   const title = cleanText(element.getAttribute('title') || '');
   if (title) return title;
-  const text = cleanText(element.textContent || '', 100);
+  const canUseOwnText = !(element instanceof HTMLElement && element.isContentEditable)
+    && element.matches('a, button, summary, option, [role]');
+  const text = canUseOwnText ? cleanText(element.textContent || '', 100) : '';
   return text || `Unlabelled ${roleFor(element)}`;
 }
 

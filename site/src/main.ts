@@ -5,8 +5,6 @@ const app = document.querySelector<HTMLDivElement>('#app')!;
 const routeStatus = document.querySelector<HTMLDivElement>('#route-status')!;
 const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')!;
 const demoNoteKey = 'demo:accessible-page-capture:note';
-const licenseKey = 'sb_license:accessible-page-capture';
-const verdictKey = 'sb_license_verdict:accessible-page-capture';
 
 type Route = '/' | '/demo' | '/privacy' | '/terms' | '/404';
 
@@ -46,8 +44,7 @@ function landing() {
       <ol class="steps"><li><span>1</span><div><h3>Start the capture</h3><p>Open the extension on the blocked page. Recording begins only when you start it.</p></div></li><li><span>2</span><div><h3>Repeat the task</h3><p>Use focus, clicks, and control keys for up to 30 seconds. Typed values become a redaction note.</p></div></li><li><span>3</span><div><h3>Check and export</h3><p>Add your goal, preview every event, then export Markdown or JSON.</p></div></li></ol>
       <a class="button secondary" href="/downloads/accessible-page-capture-chrome.zip" download>Download Chrome extension</a>
     </section>
-    <section class="limits ruled-section" aria-labelledby="limits-heading"><div><p class="eyebrow">Clear limits</p><h2 id="limits-heading">This is evidence, not a verdict</h2></div><ul><li>It does not run an automated accessibility audit.</li><li>It does not record a continuous browsing session.</li><li>It does not submit a report without your action.</li><li>It does not certify legal compliance.</li></ul></section>
-    <section class="paid ruled-section" aria-labelledby="paid-heading"><div><p class="eyebrow">Optional team handoff</p><h2 id="paid-heading">Add a route to every packet</h2><p>Save a team name and triage destination in the extension. These fields stay in your browser.</p></div><div class="price-slip"><p><strong>$39</strong> one-time purchase</p><ul><li>Team name in each export</li><li>Triage destination in each export</li><li>Free capture and export stay unchanged</li></ul><a class="button primary" href="https://api.sociobot.in/api/v1/products/accessible-page-capture/checkout">Buy team handoff</a><button class="text-button" id="show-license">Have a license? Paste it</button><div id="license-box" hidden><label for="license-input">License token</label><input id="license-input" type="password" autocomplete="off"><button class="button secondary" id="verify-license">Verify license</button><p id="license-status" aria-live="polite"></p></div><p class="legal-note">Sociobot/Dodo is the merchant of record. Refunds revoke the license. See <a href="/terms" data-link>terms</a>.</p></div></section>
+    <section class="limits ruled-section" aria-labelledby="limits-heading"><div><p class="eyebrow">Clear limits</p><h2 id="limits-heading">This is evidence, not a verdict</h2></div><ul><li>It does not run an automated accessibility audit.</li><li>It records only the page where you start.</li><li>It does not export a packet without your action.</li><li>It does not certify legal compliance.</li></ul></section>
   </main>${footer()}`;
 }
 
@@ -64,11 +61,11 @@ function demo() {
 }
 
 function privacy() {
-  return `${header()}<main id="main" class="prose-page"><p class="eyebrow">Policy · 28 August 2026</p><h1 id="page-title" tabindex="-1">Your capture stays under your control</h1><p class="lede">Accessible Page Capture stores active and finished captures in your browser.</p><h2>What the extension stores</h2><p>It stores the page address, page title, focused control labels, event timing, your note, and optional team fields. It does not store typed values, password values, screenshots, or copied page content.</p><h2>When data leaves your device</h2><p>Exports leave only when you save or share them. A license token goes to Sociobot when you verify a team handoff purchase. The free capture does not need that request.</p><h2>Demo data</h2><p>The website demo uses the <code>demo:accessible-page-capture:</code> storage prefix. Reset demo removes that data. Demo data never enters extension storage.</p><h2>Payments</h2><p>Sociobot/Dodo handles checkout and acts as merchant of record. This site does not receive card details.</p><h2>Delete your data</h2><p>Discard the current capture in the extension. You can also remove the extension to clear its local storage.</p><h2>Contact</h2><p>Email <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a> with a privacy question.</p></main>${footer()}`;
+  return `${header()}<main id="main" class="prose-page"><p class="eyebrow">Policy · 28 August 2026</p><h1 id="page-title" tabindex="-1">Your capture stays under your control</h1><p class="lede">Accessible Page Capture stores active and finished captures in your browser.</p><h2>What the extension stores</h2><p>It stores the page address, page title, control labels, event timing, and your note. It does not store typed values, password values, screenshots, or copied page content.</p><h2>When data leaves your device</h2><p>Exports leave only when you save or share them. Capture and export do not make an outside request.</p><h2>Demo data</h2><p>The website demo uses the <code>demo:accessible-page-capture:</code> storage prefix. Reset demo removes that data. Demo data never enters extension storage.</p><h2>Delete your data</h2><p>Discard the current capture in the extension. You can also remove the extension to clear its local storage.</p><h2>Contact</h2><p>Email <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a> with a privacy question.</p></main>${footer()}`;
 }
 
 function terms() {
-  return `${header()}<main id="main" class="prose-page"><p class="eyebrow">Terms · 28 August 2026</p><h1 id="page-title" tabindex="-1">Use the packet as supporting evidence</h1><p class="lede">These terms cover the website, browser extension, exports, and paid team handoff.</p><h2>What the product provides</h2><p>The extension records a short interaction trace after you start it. It produces Markdown and JSON files for your review.</p><h2>Your responsibility</h2><p>Review each packet before sharing it. Do not use the extension to collect information you lack permission to handle.</p><h2>No certification</h2><p>A packet can help reproduce a barrier. It is not an audit, legal opinion, or accessibility certification.</p><h2>Team handoff purchase</h2><p>Team handoff costs $39 as a one-time purchase. It adds local team routing fields. Core capture, preview, redaction, and export remain free.</p><h2>Billing and refunds</h2><p>Sociobot/Dodo is the merchant of record. The hosted checkout states refund terms. A refunded, expired, or revoked license stops paid fields from appearing in new exports.</p><h2>Availability</h2><p>The software is provided under the MIT License without a warranty. See the repository license for the complete text.</p><h2>Contact</h2><p>Email <a href="mailto:support@sociobot.in">support@sociobot.in</a> with a terms question.</p></main>${footer()}`;
+  return `${header()}<main id="main" class="prose-page"><p class="eyebrow">Terms · 28 August 2026</p><h1 id="page-title" tabindex="-1">Use the packet as supporting evidence</h1><p class="lede">These terms cover the website, browser extension, and exported packets.</p><h2>What the product provides</h2><p>The extension records a short interaction trace after you start it. It produces Markdown and JSON files for your review.</p><h2>Your responsibility</h2><p>Review each packet before sharing it. Do not use the extension to collect information you lack permission to handle.</p><h2>No certification</h2><p>A packet can help reproduce a barrier. It is not an audit, legal opinion, or accessibility certification.</p><h2>Availability</h2><p>The software is provided under the MIT License without a warranty. See the repository license for the complete text.</p><h2>Contact</h2><p>Email <a href="mailto:support@sociobot.in">support@sociobot.in</a> with a terms question.</p></main>${footer()}`;
 }
 
 function notFound() {
@@ -85,7 +82,7 @@ function setMeta(route: Route) {
     '/': ['Accessible Page Capture — Report web access barriers', 'Record a short focus trace and export a redacted issue packet that helps a product team replay one web access barrier.'],
     '/demo': ['Demo — Accessible Page Capture', 'Review and export a sample web access barrier packet.'],
     '/privacy': ['Privacy — Accessible Page Capture', 'See what Accessible Page Capture stores and when data leaves your browser.'],
-    '/terms': ['Terms — Accessible Page Capture', 'Terms for Accessible Page Capture and its optional team handoff purchase.'],
+    '/terms': ['Terms — Accessible Page Capture', 'Terms for the Accessible Page Capture website, extension, and exported packets.'],
     '/404': ['Page not found — Accessible Page Capture', 'The requested Accessible Page Capture page was not found.']
   } as Record<Route, [string, string]>)[route];
   document.title = values[0];
@@ -107,28 +104,6 @@ function bindDemo() {
   document.querySelector<HTMLButtonElement>('#export-json')!.addEventListener('click', () => { download(sampleJson(note.value), 'sample-access-barrier.json', 'application/json'); document.querySelector('#export-status')!.textContent = 'JSON exported. Your sample data stays in demo mode.'; });
 }
 
-async function verifyLicense(token: string) {
-  const response = await fetch(`https://api.sociobot.in/api/v1/products/accessible-page-capture/verify?license=${encodeURIComponent(token)}`);
-  if (!response.ok) throw new Error('The license service could not be reached. Try again later.');
-  const result = await response.json() as { valid: boolean; reason: string };
-  localStorage.setItem(licenseKey, token); localStorage.setItem(verdictKey, JSON.stringify({ valid: result.valid, checkedAt: Date.now() }));
-  return result.valid;
-}
-
-function bindLicense() {
-  const show = document.querySelector<HTMLButtonElement>('#show-license');
-  const box = document.querySelector<HTMLDivElement>('#license-box');
-  show?.addEventListener('click', () => { if (box) { box.hidden = false; box.querySelector('input')?.focus(); } });
-  document.querySelector<HTMLButtonElement>('#verify-license')?.addEventListener('click', async () => {
-    const token = document.querySelector<HTMLInputElement>('#license-input')!.value.trim();
-    const status = document.querySelector<HTMLParagraphElement>('#license-status')!;
-    if (!token) { status.textContent = 'Paste a license token first.'; return; }
-    status.textContent = 'Checking license…';
-    try { status.textContent = await verifyLicense(token) ? 'License verified. Paste this token into the extension.' : 'That license is not active.'; }
-    catch (error) { status.textContent = error instanceof Error ? error.message : 'The license could not be checked.'; }
-  });
-}
-
 function bindLinks() {
   document.querySelectorAll<HTMLAnchorElement>('a[data-link]').forEach((link) => link.addEventListener('click', (event) => {
     if (link.origin !== location.origin) return;
@@ -142,7 +117,6 @@ function render(moveFocus = true) {
   app.innerHTML = route === '/' ? landing() : route === '/demo' ? demo() : route === '/privacy' ? privacy() : route === '/terms' ? terms() : notFound();
   bindLinks();
   if (route === '/demo') bindDemo();
-  if (route === '/') bindLicense();
   if (moveFocus) {
     const heading = document.querySelector<HTMLElement>('#page-title');
     heading?.focus({ preventScroll: true }); window.scrollTo(0, 0);
@@ -151,12 +125,6 @@ function render(moveFocus = true) {
   if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
 }
 
-const returnedLicense = new URLSearchParams(location.search).get('license');
-if (returnedLicense) {
-  localStorage.setItem(licenseKey, returnedLicense);
-  history.replaceState({}, '', location.pathname + location.hash);
-  void verifyLicense(returnedLicense).catch(() => undefined);
-}
 window.addEventListener('popstate', () => render());
 window.addEventListener('online', () => document.body.classList.remove('is-offline'));
 window.addEventListener('offline', () => document.body.classList.add('is-offline'));

@@ -11,14 +11,42 @@
     "claim": "Typed values never enter the packet.",
     "where": "landing facts, extension facts, privacy, README",
     "test": "npm run test:e2e -- --grep @claim:redacted-input",
-    "sandbox": "fresh Chromium profile; type a unique secret into the demo page and assert the extension preview contains only the redaction event"
+    "sandbox": "fresh Chromium profile; type unique secrets into textarea and contenteditable controls; assert storage, preview, Markdown, and JSON omit every value"
+  },
+  {
+    "id": "password-redaction",
+    "claim": "Password values never enter the packet.",
+    "where": "privacy, README, export privacy notes",
+    "test": "npm run test:e2e -- --grep @claim:password-redaction",
+    "sandbox": "fresh Chromium profile; type a unique password and assert storage plus both exported formats omit it"
   },
   {
     "id": "no-page-copy",
     "claim": "The extension does not copy the page content.",
     "where": "landing preview, privacy",
     "test": "npm run test:e2e -- --grep @claim:no-page-copy",
-    "sandbox": "fresh Chromium profile; record the demo and assert unrelated page copy is absent from the packet preview"
+    "sandbox": "fresh Chromium profile; click a paragraph containing unique private page copy and assert storage, preview, Markdown, and JSON omit it"
+  },
+  {
+    "id": "preview-before-export",
+    "claim": "A preview appears before export.",
+    "where": "brief, landing how-it-works, extension preview",
+    "test": "npm run test:e2e -- --grep @claim:preview-before-export",
+    "sandbox": "fresh Chromium profile; stop a capture, assert the preview and both export actions are visible before either file is created"
+  },
+  {
+    "id": "no-auto-export",
+    "claim": "The extension does not export a packet without your action.",
+    "where": "landing limits, privacy",
+    "test": "npm run test:e2e -- --grep @claim:no-auto-export",
+    "sandbox": "fresh Chromium profile; start and stop capture, assert zero downloads until an export action is clicked"
+  },
+  {
+    "id": "single-page-capture",
+    "claim": "The extension records only the page where you start.",
+    "where": "landing limits, README",
+    "test": "npm run test:e2e -- --grep @claim:single-page-capture",
+    "sandbox": "fresh Chromium profile; start on demo, navigate to privacy, click an injected control, and assert no event is added after navigation"
   },
   {
     "id": "thirty-second-limit",
@@ -39,7 +67,7 @@
     "claim": "Individual exports cost $0.",
     "where": "landing facts, extension facts, README",
     "test": "npm run test:e2e -- --grep @claim:free-export",
-    "sandbox": "fresh demo context without a license; export JSON and assert success"
+    "sandbox": "fresh demo context without payment or setup; export JSON and assert success"
   },
   {
     "id": "offline-capture",
@@ -60,14 +88,7 @@
     "claim": "Sensitive URL parameters and fragments are removed from exports.",
     "where": "README, export implementation",
     "test": "npm run test:unit -- --testNamePattern @claim:url-redaction",
-    "sandbox": "unit fixture with a secret token query parameter and private fragment; assert neither raw value reaches output"
-  },
-  {
-    "id": "team-routing",
-    "claim": "Team handoff adds a team name and triage destination to exports.",
-    "where": "landing paid tier, terms, README",
-    "test": "npm run test:unit -- --testNamePattern @claim:team-routing",
-    "sandbox": "unit fixture with a verified-feature team profile; assert the routing destination appears in Markdown"
+    "sandbox": "unit fixtures with patient, diagnosis, token, and fragment values; assert every query value and fragment is absent"
   },
   {
     "id": "local-storage",
@@ -84,17 +105,17 @@
     "sandbox": "fresh Chromium extension profile; inspect the completed capture object and preview for image data"
   },
   {
+    "id": "no-capture-network",
+    "claim": "Capture and export make no outside request.",
+    "where": "privacy, README",
+    "test": "npm run test:e2e -- --grep @claim:no-capture-network",
+    "sandbox": "fresh Chromium extension profile; capture and export both formats while recording requests; assert no outside origin is contacted"
+  },
+  {
     "id": "no-runtime-third-party",
     "claim": "The site loads no third-party scripts, fonts, or analytics.",
     "where": "README",
     "test": "npm run test:e2e -- --grep @claim:no-runtime-third-party",
     "sandbox": "fresh demo context; record every request and assert all are same-origin"
-  },
-  {
-    "id": "license-verify",
-    "claim": "A returned team-handoff license is stored and verified with the Sociobot billing API.",
-    "where": "paid tier, README",
-    "test": "npm run test:e2e -- --grep @claim:license-verify",
-    "sandbox": "fresh browser context with a recorded valid Sociobot response; assert token storage, verdict storage, URL cleanup, and checkout URL"
   }
 ]

@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { readFile } from 'node:fs/promises';
 
 test('landing routes and mobile layout are accessible', async ({ page }) => {
   for (const route of ['/', '/demo', '/privacy', '/terms', '/missing']) {
@@ -14,6 +15,41 @@ test('landing routes and mobile layout are accessible', async ({ page }) => {
   await page.goto('/');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Record an access barrier');
+  if (!process.env.APC_BASE_URL) {
+    await page.addStyleTag({ content: ':root{font-size:32px!important}' });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  }
+  await page.reload();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: 'Skip to main content' })).toBeFocused();
+});
+
+test('production routes, download, and touch targets meet the release response policy', async ({ page, request }) => {
+  const config = JSON.parse(await readFile('site/public/staticwebapp.config.json', 'utf8'));
+  expect(config.responseOverrides['404']).toEqual({ rewrite: '/404.html' });
+  expect(config.globalHeaders['Content-Security-Policy']).toContain("default-src 'self'");
+  const missing = await request.get('/missing');
+  expect(missing.status()).toBe(404);
+  const archive = await request.get('/downloads/accessible-page-capture-chrome.zip');
+  expect(archive.status()).toBe(200);
+  expect((await archive.body()).subarray(0, 2).toString()).toBe('PK');
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const route of ['/', '/demo', '/privacy', '/terms']) {
+    await page.goto(route);
+    const undersized = await page.locator('a, button, input, textarea, summary').evaluateAll((elements) => elements
+      .filter((element) => {
+        const style = getComputedStyle(element);
+        const rect = element.getBoundingClientRect();
+        return style.display !== 'none' && style.visibility !== 'hidden' && (rect.width < 44 || rect.height < 44);
+      })
+      .map((element) => ({ text: element.textContent?.trim(), tag: element.tagName, rect: element.getBoundingClientRect().toJSON() })));
+    expect(undersized).toEqual([]);
+  }
+  await page.goto('/');
+  await expect(page.getByRole('link', { name: /Buy team handoff/i })).toHaveCount(0);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.reload();
+  await expect(page.locator('.hero-art')).toHaveCSS('transform', 'none');
 });
 
 test('@claim:markdown-json exports usable Markdown and JSON', async ({ page }) => {
@@ -31,9 +67,8 @@ test('@claim:markdown-json exports usable Markdown and JSON', async ({ page }) =
   expect(JSON.parse(await (await import('node:fs/promises')).readFile(await jsonFile.path() as string, 'utf8')).format).toBe('accessible-page-capture/v1');
 });
 
-test('@claim:free-export exports sample files without a license', async ({ page }) => {
+test('@claim:free-export exports sample files without payment or setup', async ({ page }) => {
   await page.goto('/demo');
-  expect(await page.evaluate(() => localStorage.getItem('sb_license:accessible-page-capture'))).toBeNull();
   const download = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Export JSON' }).click();
   await download;
@@ -44,6 +79,7 @@ test('@claim:offline-capture reloads and exports offline after one visit', async
   await page.goto('/demo');
   await page.evaluate(async () => { await navigator.serviceWorker.ready; });
   await page.reload();
+  expect(await page.evaluate(async () => (await caches.keys()).includes('apc-site-v2'))).toBe(true);
   await context.setOffline(true);
   await page.reload();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Check a captured access barrier');
@@ -55,18 +91,13 @@ test('@claim:offline-capture reloads and exports offline after one visit', async
 
 test('@claim:demo-private @claim:no-runtime-third-party keeps the sample in its demo namespace and makes no outside request', async ({ page }) => {
   const outside: string[] = [];
-  page.on('request', (request) => { if (new URL(request.url()).origin !== 'http://127.0.0.1:4173') outside.push(request.url()); });
+  const expectedOrigin = new URL(process.env.APC_BASE_URL || 'http://127.0.0.1:4173').origin;
+  page.on('request', (request) => { if (new URL(request.url()).origin !== expectedOrigin) outside.push(request.url()); });
   await page.goto('/demo');
   await page.locator('#demo-note').fill('A changed sample note');
   expect(await page.evaluate(() => Object.keys(localStorage))).toEqual(['demo:accessible-page-capture:note']);
+  await page.getByRole('button', { name: 'Reset demo' }).click();
+  expect(await page.evaluate(() => localStorage.getItem('demo:accessible-page-capture:note'))).toBeNull();
+  await expect(page.locator('#demo-note')).toHaveValue(/choose a return date/i);
   expect(outside).toEqual([]);
-});
-
-test('@claim:license-verify stores a returned license and verifies it with Sociobot', async ({ page }) => {
-  await page.route('https://api.sociobot.in/api/v1/products/accessible-page-capture/verify?license=paid-test-token', (route) => route.fulfill({ json: { valid: true, reason: 'ok', expires_at: null } }));
-  await page.goto('/?license=paid-test-token');
-  await expect.poll(() => page.evaluate(() => localStorage.getItem('sb_license:accessible-page-capture'))).toBe('paid-test-token');
-  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('sb_license_verdict:accessible-page-capture') || 'null')?.valid)).toBe(true);
-  expect(new URL(page.url()).search).toBe('');
-  await expect(page.getByRole('link', { name: 'Buy team handoff' })).toHaveAttribute('href', 'https://api.sociobot.in/api/v1/products/accessible-page-capture/checkout');
 });
