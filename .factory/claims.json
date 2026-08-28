@@ -1,0 +1,100 @@
+[
+  {
+    "id": "explicit-start",
+    "claim": "Nothing records before you start.",
+    "where": "extension first screen, landing how-it-works",
+    "test": "npm run test:e2e -- --grep @claim:explicit-start",
+    "sandbox": "fresh Chromium profile with the unpacked extension; assert capture storage is empty before Start"
+  },
+  {
+    "id": "redacted-input",
+    "claim": "Typed values never enter the packet.",
+    "where": "landing facts, extension facts, privacy, README",
+    "test": "npm run test:e2e -- --grep @claim:redacted-input",
+    "sandbox": "fresh Chromium profile; type a unique secret into the demo page and assert the extension preview contains only the redaction event"
+  },
+  {
+    "id": "no-page-copy",
+    "claim": "The extension does not copy the page content.",
+    "where": "landing preview, privacy",
+    "test": "npm run test:e2e -- --grep @claim:no-page-copy",
+    "sandbox": "fresh Chromium profile; record the demo and assert unrelated page copy is absent from the packet preview"
+  },
+  {
+    "id": "thirty-second-limit",
+    "claim": "Recording stops after 30 seconds.",
+    "where": "landing how-it-works, extension first screen, README",
+    "test": "npm run test:unit -- --testNamePattern @claim:thirty-second-limit",
+    "sandbox": "unit fixture with a capture at the exact limit; assert the constant and exported duration are 30 seconds"
+  },
+  {
+    "id": "markdown-json",
+    "claim": "Exports Markdown and JSON.",
+    "where": "landing how-it-works, demo, terms, README",
+    "test": "npm run test:e2e -- --grep @claim:markdown-json",
+    "sandbox": "fresh demo context; download both files, parse JSON, and inspect Markdown content"
+  },
+  {
+    "id": "free-export",
+    "claim": "Individual exports cost $0.",
+    "where": "landing facts, extension facts, README",
+    "test": "npm run test:e2e -- --grep @claim:free-export",
+    "sandbox": "fresh demo context without a license; export JSON and assert success"
+  },
+  {
+    "id": "offline-capture",
+    "claim": "Capture and export work offline.",
+    "where": "landing facts, README",
+    "test": "npm run test:e2e -- --grep @claim:offline-capture",
+    "sandbox": "fresh browser context; visit demo once, set the context offline, reload, then export Markdown"
+  },
+  {
+    "id": "demo-private",
+    "claim": "Demo sample data is separate and nothing is sent outside the site.",
+    "where": "demo banner, demo note, privacy, README",
+    "test": "npm run test:e2e -- --grep @claim:demo-private",
+    "sandbox": "fresh demo context; edit the sample note, inspect localStorage keys, and assert no cross-origin request"
+  },
+  {
+    "id": "url-redaction",
+    "claim": "Sensitive URL parameters and fragments are removed from exports.",
+    "where": "README, export implementation",
+    "test": "npm run test:unit -- --testNamePattern @claim:url-redaction",
+    "sandbox": "unit fixture with a secret token query parameter and private fragment; assert neither raw value reaches output"
+  },
+  {
+    "id": "team-routing",
+    "claim": "Team handoff adds a team name and triage destination to exports.",
+    "where": "landing paid tier, terms, README",
+    "test": "npm run test:unit -- --testNamePattern @claim:team-routing",
+    "sandbox": "unit fixture with a verified-feature team profile; assert the routing destination appears in Markdown"
+  },
+  {
+    "id": "local-storage",
+    "claim": "Capture data stays in browser-local extension storage.",
+    "where": "privacy, README",
+    "test": "npm run test:e2e -- --grep @claim:local-storage",
+    "sandbox": "fresh Chromium extension profile; complete a capture and inspect chrome.storage.local"
+  },
+  {
+    "id": "no-screenshots",
+    "claim": "The extension does not capture screenshots.",
+    "where": "privacy, README",
+    "test": "npm run test:e2e -- --grep @claim:no-screenshots",
+    "sandbox": "fresh Chromium extension profile; inspect the completed capture object and preview for image data"
+  },
+  {
+    "id": "no-runtime-third-party",
+    "claim": "The site loads no third-party scripts, fonts, or analytics.",
+    "where": "README",
+    "test": "npm run test:e2e -- --grep @claim:no-runtime-third-party",
+    "sandbox": "fresh demo context; record every request and assert all are same-origin"
+  },
+  {
+    "id": "license-verify",
+    "claim": "A returned team-handoff license is stored and verified with the Sociobot billing API.",
+    "where": "paid tier, README",
+    "test": "npm run test:e2e -- --grep @claim:license-verify",
+    "sandbox": "fresh browser context with a recorded valid Sociobot response; assert token storage, verdict storage, URL cleanup, and checkout URL"
+  }
+]
