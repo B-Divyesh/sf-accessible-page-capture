@@ -1,3 +1,21 @@
+# Accessible Page Capture — review 2 handoff
+
+Work order: `accessible-page-capture-review-2`
+Review commit: pending
+
+## Done
+
+- Performed the requested adversarial first-read review without changing product code.
+- Wrote `.factory/review-2.md` with a **PASS** verdict: zero blocking or minor findings.
+- Rechecked every F-1 finding on the live product and source; all remain fixed.
+- Verified the clean clone at `/tmp/apc-review2-NGTXJY`: all 22 claim tags, `npm test`, `npm run check`, and `npm run build` passed. The live Playwright suite recorded a passed final status.
+
+## Handoff
+
+No product work is left by this review. Re-run the commands recorded in `.factory/review-2.md` after a future product change, especially if it changes public copy, demo storage, exports, routing, or the extension capture path.
+
+---
+
 # Accessible Page Capture — polish 1 handoff
 
 Work order: `accessible-page-capture-polish-1`
