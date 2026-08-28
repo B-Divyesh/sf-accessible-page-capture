@@ -63,6 +63,27 @@
     "sandbox": "fresh demo context; download both files, parse JSON, and inspect Markdown content"
   },
   {
+    "id": "page-context",
+    "claim": "The packet keeps the captured page address and title.",
+    "where": "landing preview, privacy, README",
+    "test": "npm run test:e2e -- --grep @claim:page-context",
+    "sandbox": "fresh demo context; export Markdown and JSON and assert both contain the sample page address and title"
+  },
+  {
+    "id": "ordered-labelled-events",
+    "claim": "The packet keeps time-ordered focus, click, and control-key events with control labels and roles.",
+    "where": "landing preview and hero caption, README",
+    "test": "npm run test:e2e -- --grep @claim:ordered-labelled-events",
+    "sandbox": "fresh demo context; export JSON and assert the sample focus, click, and key events remain ordered and each has a label and role"
+  },
+  {
+    "id": "user-note",
+    "claim": "The packet keeps the user-written goal or note.",
+    "where": "landing preview and how-it-works, privacy, README",
+    "test": "npm run test:e2e -- --grep @claim:user-note",
+    "sandbox": "fresh demo context; enter a unique note, export Markdown and JSON, and assert both contain that exact note"
+  },
+  {
     "id": "free-export",
     "claim": "Individual exports cost $0.",
     "where": "landing facts, extension facts, README",

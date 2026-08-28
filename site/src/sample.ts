@@ -12,7 +12,7 @@ export const samplePacket = {
     { at: '+4.0s', kind: 'key', label: 'Return date', role: 'textbox', detail: 'Enter' },
     { at: '+7.3s', kind: 'key', label: 'Unlabelled grid', role: 'grid', detail: 'ArrowRight' },
     { at: '+11.2s', kind: 'redacted-input', label: 'Trip reason', role: 'textbox', detail: 'Typed value redacted' },
-    { at: '+18.4s', kind: 'focus', label: 'Save request', role: 'button' }
+    { at: '+18.4s', kind: 'click', label: 'Save request', role: 'button' }
   ] as SampleEvent[]
 };
 

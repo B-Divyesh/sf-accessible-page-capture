@@ -2,6 +2,14 @@ import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFile } from 'node:fs/promises';
 
+async function downloadedText(page: import('@playwright/test').Page, buttonName: string): Promise<string> {
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: buttonName }).click();
+  const path = await (await download).path();
+  expect(path).not.toBeNull();
+  return readFile(path as string, 'utf8');
+}
+
 test('landing routes and mobile layout are accessible', async ({ page }) => {
   for (const route of ['/', '/demo', '/privacy', '/terms', '/missing']) {
     await page.goto(route);
@@ -65,6 +73,38 @@ test('@claim:markdown-json exports usable Markdown and JSON', async ({ page }) =
   await page.getByRole('button', { name: 'Export JSON' }).click();
   const jsonFile = await json;
   expect(JSON.parse(await (await import('node:fs/promises')).readFile(await jsonFile.path() as string, 'utf8')).format).toBe('accessible-page-capture/v1');
+});
+
+test('@claim:page-context exports the captured page address and title', async ({ page }) => {
+  await page.goto('/demo');
+  const markdown = await downloadedText(page, 'Export Markdown');
+  const json = JSON.parse(await downloadedText(page, 'Export JSON'));
+  expect(markdown).toContain('- Page: https://work.example.test/travel/new');
+  expect(markdown).toContain('- Page title: Travel requests — Northstar People');
+  expect(json.page).toEqual({
+    url: 'https://work.example.test/travel/new',
+    title: 'Travel requests — Northstar People'
+  });
+});
+
+test('@claim:ordered-labelled-events exports ordered focus, click, and control-key events with labels and roles', async ({ page }) => {
+  await page.goto('/demo');
+  const packet = JSON.parse(await downloadedText(page, 'Export JSON'));
+  const events = packet.capture.events as Array<{ at: string; kind: string; label: string; role: string; detail?: string }>;
+  expect(events.map((event) => event.kind)).toEqual(['focus', 'focus', 'key', 'key', 'redacted-input', 'click']);
+  expect(events.map((event) => Number.parseFloat(event.at.slice(1)))).toEqual([0.8, 3.1, 4, 7.3, 11.2, 18.4]);
+  expect(events.every((event) => event.label.length > 0 && event.role.length > 0)).toBe(true);
+  expect(events.filter((event) => event.kind === 'key').map((event) => event.detail)).toEqual(['Enter', 'ArrowRight']);
+});
+
+test('@claim:user-note exports the exact user-written note', async ({ page }) => {
+  const note = 'I need the return-date control to announce the selected Friday.';
+  await page.goto('/demo');
+  await page.locator('#demo-note').fill(note);
+  const markdown = await downloadedText(page, 'Export Markdown');
+  const packet = JSON.parse(await downloadedText(page, 'Export JSON'));
+  expect(markdown).toContain(`## What I was trying to do\n\n${note}`);
+  expect(packet.capture.note).toBe(note);
 });
 
 test('@claim:free-export exports sample files without payment or setup', async ({ page }) => {
