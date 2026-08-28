@@ -1,0 +1,9 @@
+{
+  "name": "Accessible Page Capture",
+  "short_name": "Page Capture",
+  "start_url": "/demo",
+  "display": "standalone",
+  "background_color": "#F4EBD9",
+  "theme_color": "#F4EBD9",
+  "icons": [{ "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }]
+}
