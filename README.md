@@ -1,25 +1,25 @@
 # Accessible Page Capture
 
-Record an access barrier and export a private issue packet.
+Record blocked web steps as a private issue packet.
 
-Accessible Page Capture is a Chrome MV3 extension for low-vision workers and the colleagues supporting them. It records one explicit focus and control trace for up to 30 seconds. The user previews the packet, adds a note, then exports Markdown or JSON.
+Accessible Page Capture is a Chrome extension for low-vision workers and their colleagues. It records up to 30 seconds of where focus moved, what you clicked, and which control keys you used. Review the issue packet, add a note, then export Markdown or JSON.
 
 Typed values and passwords never enter the packet. Every URL query value is redacted. Capture and export work offline. Individual exports cost $0.
 
 Live site: <https://accessible-page-capture.sociobot.in>
 
-One-click demo: <https://accessible-page-capture.sociobot.in/demo>
+One-click isolated demo: <https://accessible-page-capture.sociobot.in/?demo=1>
 
 ## What it records
 
 - Page address and title
-- Time-ordered focus, click, and control-key events
+- Time-ordered recorded focus, click, and control-key steps
 - Accessible control labels and roles
 - A user-written goal or note
 
-It does not record by default. It does not capture screenshots, typed values, page content, or another page after navigation. A packet is supporting evidence, not an accessibility certification.
+It does not record by default. It does not capture screenshots, typed values, page content, or another page after navigation. The packet shows recorded steps, not an accessibility score.
 
-## Run locally
+## Run, test, and deploy
 
 Requires Node.js 22 or newer.
 
@@ -38,11 +38,11 @@ The build creates:
 - `dist/site/index.html` — static deployment root
 - `dist/site/downloads/accessible-page-capture-chrome.zip` — site download
 
-To install the local build, open `chrome://extensions`, enable Developer mode, choose “Load unpacked,” and select `.output/chrome-mv3`.
+To install the local build, open `chrome://extensions`, enable Developer mode, choose “Load unpacked,” and select `.output/chrome-mv3`. To deploy the static site, provide `dist/site/` to the factory static deployment work order; it contains the extension ZIP under `downloads/`.
 
 ## Privacy and security
 
-Capture data stays in `chrome.storage.local`. The demo uses only the `demo:accessible-page-capture:` localStorage prefix. Capture and export make no outside request.
+Capture data stays in `chrome.storage.local`. The demo uses only the `demo:accessible-page-capture:` localStorage prefix. Reset demo removes its note and restores the shipped sample. Capture and export make no outside request.
 
 The site loads no third-party scripts, fonts, or analytics. See `/privacy` and `/terms` on the deployed site.
 

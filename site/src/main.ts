@@ -10,7 +10,7 @@ type Route = '/' | '/demo' | '/privacy' | '/terms' | '/404';
 
 const header = () => `<header class="site-header">
   <a class="wordmark" href="/" data-link aria-label="Accessible Page Capture home"><span aria-hidden="true" class="wordmark-mark">●</span><span>Accessible<br>Page Capture</span></a>
-  <nav aria-label="Main navigation"><a href="/demo" data-link>Demo</a><a href="/#how">How it works</a><a href="/privacy" data-link>Privacy</a></nav>
+  <nav aria-label="Main navigation"><a href="/?demo=1" data-link>Demo</a><a href="/#how">How it works</a><a href="/privacy" data-link>Privacy</a></nav>
 </header>`;
 
 const footer = () => `<footer class="site-footer">
@@ -27,30 +27,30 @@ function landing() {
   return `${header()}<main id="main">
     <section class="hero" aria-labelledby="page-title">
       <div class="hero-copy">
-        <p class="eyebrow">A short trace for one blocked task</p>
-        <h1 id="page-title" tabindex="-1">Record an access barrier others can replay</h1>
+        <p class="eyebrow">One blocked task, clearly recorded</p>
+        <h1 id="page-title" tabindex="-1">Record a blocked web task as an issue packet</h1>
         <p class="lede">For low-vision workers and colleagues who need a product team to reproduce one blocked web task.</p>
-        <div class="hero-action"><a class="button primary" href="/demo" data-link>Try it with sample data</a><p>The demo opens a finished packet. Nothing is saved.</p></div>
+        <div class="hero-action"><a class="button primary" href="/?demo=1" data-link>Try it with sample data</a><p>The demo opens a finished issue packet. Nothing is saved.</p></div>
         <ul class="plain-facts" aria-label="Product facts"><li><b>Private</b> Typed values never enter the packet.</li><li><b>Offline</b> Capture and export work offline.</li><li><b>Free</b> Individual exports cost $0.</li></ul>
       </div>
-      <figure class="hero-art"><picture><source media="(max-width: 700px)" srcset="/art/hero-640.webp"><img src="/art/hero-960.webp" width="960" height="640" alt="A paper browser trace connects three numbered steps to a compact report." fetchpriority="high" decoding="async"></picture><figcaption>Focus and control events become a report a team can inspect.</figcaption></figure>
+      <figure class="hero-art"><picture><source media="(max-width: 700px)" srcset="/art/hero-640.webp"><img src="/art/hero-960.webp" width="960" height="640" alt="A paper browser trace connects three numbered recorded steps to an issue packet." fetchpriority="high" decoding="async"></picture><figcaption>Recorded steps become an issue packet your team can inspect.</figcaption></figure>
     </section>
     <section class="live-preview ruled-section" aria-labelledby="preview-heading">
-      <div class="section-intro"><p class="eyebrow">The product, not a scan</p><h2 id="preview-heading">See the interaction in order</h2><p>The packet keeps the page address, control labels, timing, and your note. It does not copy the page.</p></div>
-      <div class="preview-sheet"><div class="sheet-head"><span>Sample trace</span><span>18.4 seconds</span></div>${traceMarkup()}</div>
+      <div class="section-intro"><p class="eyebrow">A recorded issue packet</p><h2 id="preview-heading">See each recorded step in order</h2><p>The packet keeps the page address, control labels, timing, and your note. It does not copy the page.</p></div>
+      <div class="preview-sheet"><div class="sheet-head"><span>Sample recorded steps</span><span>18.4 seconds</span></div>${traceMarkup()}</div>
     </section>
     <section id="how" class="how ruled-section" aria-labelledby="how-heading">
-      <div class="section-intro"><p class="eyebrow">How it works</p><h2 id="how-heading">Make one barrier concrete</h2></div>
+      <div class="section-intro"><p class="eyebrow">How it works</p><h2 id="how-heading">Show your team what blocked the task</h2></div>
       <ol class="steps"><li><span>1</span><div><h3>Start the capture</h3><p>Open the extension on the blocked page. Recording begins only when you start it.</p></div></li><li><span>2</span><div><h3>Repeat the task</h3><p>Use focus, clicks, and control keys for up to 30 seconds. Typed values become a redaction note.</p></div></li><li><span>3</span><div><h3>Check and export</h3><p>Add your goal, preview every event, then export Markdown or JSON.</p></div></li></ol>
       <a class="button secondary" href="/downloads/accessible-page-capture-chrome.zip" download>Download Chrome extension</a>
     </section>
-    <section class="limits ruled-section" aria-labelledby="limits-heading"><div><p class="eyebrow">Clear limits</p><h2 id="limits-heading">This is evidence, not a verdict</h2></div><ul><li>It does not run an automated accessibility audit.</li><li>It records only the page where you start.</li><li>It does not export a packet without your action.</li><li>It does not certify legal compliance.</li></ul></section>
+    <section class="limits ruled-section" aria-labelledby="limits-heading"><div><p class="eyebrow">Before you share</p><h2 id="limits-heading">Check the recorded steps yourself</h2></div><ul><li>The packet shows recorded steps, not an accessibility score.</li><li>It records only the page where you start.</li><li>It does not export a packet without your action.</li><li>Review the packet before sharing it.</li></ul></section>
   </main>${footer()}`;
 }
 
 function demo() {
   const note = localStorage.getItem(demoNoteKey) || samplePacket.note;
-  return `<div class="demo-banner" role="status"><span><strong>Demo</strong> — sample data, nothing is saved</span><span><button id="reset-demo">Reset demo</button><a href="/downloads/accessible-page-capture-chrome.zip" download>Start for real</a></span></div>${header()}<main id="main" class="demo-main">
+  return `<div class="demo-banner" role="status"><span><strong>Demo</strong> — sample data, nothing is saved</span><span><button id="reset-demo">Reset demo</button><a href="/downloads/accessible-page-capture-chrome.zip" download>Download Chrome extension</a></span></div>${header()}<main id="main" class="demo-main">
     <section class="demo-heading" aria-labelledby="page-title"><div><p class="eyebrow">Sample issue packet</p><h1 id="page-title" tabindex="-1">Check a captured access barrier</h1><p>Review the trace, change the note, and export either file.</p></div><div class="demo-stamp" aria-label="Capture complete"><span>6 events</span><strong>18.4s</strong><small>capture complete</small></div></section>
     <section class="packet" aria-labelledby="packet-heading"><div class="packet-meta"><div><p class="eyebrow">Captured page</p><h2 id="packet-heading">${samplePacket.pageTitle}</h2><p>${samplePacket.pageUrl}</p></div><dl><div><dt>Captured</dt><dd>28 Aug 2026, 09:42 UTC</dd></div><div><dt>Duration</dt><dd>${samplePacket.duration}</dd></div></dl></div>
       <div class="packet-grid"><div><label for="demo-note">What I was trying to do</label><textarea id="demo-note" rows="5" maxlength="1000">${note}</textarea><p class="save-note">Demo note stays in the separate <code>demo:</code> storage space.</p></div><div><h2>Interaction trace</h2>${traceMarkup()}</div></div>
@@ -72,14 +72,15 @@ function notFound() {
   return `${header()}<main id="main" class="not-found"><div class="lost-sheet" aria-hidden="true"><span>4</span><span>0</span><span>4</span></div><p class="eyebrow">Page not found</p><h1 id="page-title" tabindex="-1">This report slipped out of the stack</h1><p>The address does not match a page here.</p><a class="button primary" href="/" data-link>Return home</a></main>${footer()}`;
 }
 
-function routeFor(path: string): Route {
+function routeFor(path: string, search: string): Route {
+  if (path === '/' && new URLSearchParams(search).get('demo') === '1') return '/demo';
   if (path === '/' || path === '/demo' || path === '/privacy' || path === '/terms') return path;
   return '/404';
 }
 
 function setMeta(route: Route) {
   const values: [string, string] = ({
-    '/': ['Accessible Page Capture — Report web access barriers', 'Record a short focus trace and export a redacted issue packet that helps a product team replay one web access barrier.'],
+    '/': ['Accessible Page Capture — Report web access barriers', 'Record blocked web steps and export a private issue packet for a product team to inspect.'],
     '/demo': ['Demo — Accessible Page Capture', 'Review and export a sample web access barrier packet.'],
     '/privacy': ['Privacy — Accessible Page Capture', 'See what Accessible Page Capture stores and when data leaves your browser.'],
     '/terms': ['Terms — Accessible Page Capture', 'Terms for the Accessible Page Capture website, extension, and exported packets.'],
@@ -112,7 +113,7 @@ function bindLinks() {
 }
 
 function render(moveFocus = true) {
-  const route = routeFor(location.pathname.replace(/\/$/, '') || '/');
+  const route = routeFor(location.pathname.replace(/\/$/, '') || '/', location.search);
   setMeta(route);
   app.innerHTML = route === '/' ? landing() : route === '/demo' ? demo() : route === '/privacy' ? privacy() : route === '/terms' ? terms() : notFound();
   bindLinks();

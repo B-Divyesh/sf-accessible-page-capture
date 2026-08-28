@@ -85,6 +85,109 @@ test('@claim:explicit-start @claim:redacted-input @claim:password-redaction @cla
   }
 });
 
+test('@claim:offline-capture captures a real extension event and exports it while offline', async () => {
+  const userDataDir = await mkdtemp(join(tmpdir(), 'apc-extension-offline-'));
+  const extensionPath = resolve('.output/chrome-mv3');
+  const context = await chromium.launchPersistentContext(userDataDir, {
+    channel: 'chromium', headless: true, acceptDownloads: true,
+    args: [`--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`]
+  });
+  try {
+    let worker = context.serviceWorkers()[0];
+    if (!worker) worker = await context.waitForEvent('serviceworker');
+    const extensionId = new URL(worker.url()).host;
+    const target = await context.newPage();
+    await target.goto('http://127.0.0.1:4173/?demo=1');
+    await target.evaluate(() => {
+      const button = document.createElement('button');
+      button.id = 'offline-control'; button.textContent = 'Offline sample control';
+      document.body.prepend(button);
+    });
+    const popup = await context.newPage();
+    await popup.goto(`chrome-extension://${extensionId}/popup.html`);
+    await context.setOffline(true);
+    await popup.getByRole('button', { name: 'Start 30-second capture' }).click();
+    await target.getByRole('button', { name: 'Offline sample control' }).click();
+    await popup.getByRole('button', { name: 'Stop and preview' }).click();
+    const download = popup.waitForEvent('download');
+    await popup.getByRole('button', { name: 'Export JSON' }).click();
+    const file = await download;
+    const content = await readFile(await file.path() as string, 'utf8');
+    const packet = JSON.parse(content) as { capture: { events: Array<{ label: string; kind: string }> } };
+    expect(packet.capture.events).toEqual(expect.arrayContaining([
+      expect.objectContaining({ label: 'Offline sample control', kind: 'click' })
+    ]));
+    await context.setOffline(false);
+  } finally {
+    await context.close();
+    await rm(userDataDir, { recursive: true, force: true });
+  }
+});
+
+test('@claim:free-export exports a real extension packet without a payment step', async () => {
+  const userDataDir = await mkdtemp(join(tmpdir(), 'apc-extension-free-export-'));
+  const extensionPath = resolve('.output/chrome-mv3');
+  const context = await chromium.launchPersistentContext(userDataDir, {
+    channel: 'chromium', headless: true, acceptDownloads: true,
+    args: [`--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`]
+  });
+  try {
+    const paymentRequests: string[] = [];
+    context.on('request', (request) => {
+      if (/checkout|payment|billing|api\.sociobot/i.test(request.url())) paymentRequests.push(request.url());
+    });
+    let worker = context.serviceWorkers()[0];
+    if (!worker) worker = await context.waitForEvent('serviceworker');
+    const extensionId = new URL(worker.url()).host;
+    const target = await context.newPage();
+    await target.goto('http://127.0.0.1:4173/?demo=1');
+    const popup = await context.newPage();
+    await popup.goto(`chrome-extension://${extensionId}/popup.html`);
+    await popup.getByRole('button', { name: 'Start 30-second capture' }).click();
+    await target.getByRole('button', { name: 'Export JSON' }).focus();
+    await popup.getByRole('button', { name: 'Stop and preview' }).click();
+    const download = popup.waitForEvent('download');
+    await popup.getByRole('button', { name: 'Export JSON' }).click();
+    const file = await download;
+    expect(file.suggestedFilename()).toMatch(/\.json$/);
+    expect(JSON.parse(await readFile(await file.path() as string, 'utf8')).format).toBe('accessible-page-capture/v1');
+    expect(paymentRequests).toEqual([]);
+  } finally {
+    await context.close();
+    await rm(userDataDir, { recursive: true, force: true });
+  }
+});
+
+test('@claim:no-accessibility-score exports recorded steps without an audit score or certification result', async () => {
+  const userDataDir = await mkdtemp(join(tmpdir(), 'apc-extension-no-score-'));
+  const extensionPath = resolve('.output/chrome-mv3');
+  const context = await chromium.launchPersistentContext(userDataDir, {
+    channel: 'chromium', headless: true, acceptDownloads: true,
+    args: [`--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`]
+  });
+  try {
+    let worker = context.serviceWorkers()[0];
+    if (!worker) worker = await context.waitForEvent('serviceworker');
+    const extensionId = new URL(worker.url()).host;
+    const target = await context.newPage();
+    await target.goto('http://127.0.0.1:4173/?demo=1');
+    const popup = await context.newPage();
+    await popup.goto(`chrome-extension://${extensionId}/popup.html`);
+    await popup.getByRole('button', { name: 'Start 30-second capture' }).click();
+    await target.getByRole('button', { name: 'Export Markdown' }).focus();
+    await popup.getByRole('button', { name: 'Stop and preview' }).click();
+    await expect(popup.locator('main')).not.toContainText(/score|audit|certif/i);
+    const download = popup.waitForEvent('download');
+    await popup.getByRole('button', { name: 'Export JSON' }).click();
+    const packet = JSON.parse(await readFile(await (await download).path() as string, 'utf8')) as Record<string, unknown>;
+    expect(Object.keys(packet).sort()).toEqual(['capture', 'format', 'page', 'redactions']);
+    expect(JSON.stringify(packet)).not.toMatch(/"(?:score|audit|certification|compliance)"/i);
+  } finally {
+    await context.close();
+    await rm(userDataDir, { recursive: true, force: true });
+  }
+});
+
 test('@claim:single-page-capture does not continue recording after page navigation', async () => {
   const userDataDir = await mkdtemp(join(tmpdir(), 'apc-extension-navigation-'));
   const extensionPath = resolve('.output/chrome-mv3');

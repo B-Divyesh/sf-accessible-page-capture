@@ -11,7 +11,7 @@ async function downloadedText(page: import('@playwright/test').Page, buttonName:
 }
 
 test('landing routes and mobile layout are accessible', async ({ page }) => {
-  for (const route of ['/', '/demo', '/privacy', '/terms', '/missing']) {
+  for (const route of ['/', '/?demo=1', '/demo', '/privacy', '/terms', '/missing']) {
     await page.goto(route);
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await expect(page.locator('main')).toHaveCount(1);
@@ -22,7 +22,10 @@ test('landing routes and mobile layout are accessible', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Record an access barrier');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Record a blocked web task');
+  const actionCopy = page.locator('.hero-action');
+  expect((await actionCopy.boundingBox())?.y ?? Number.POSITIVE_INFINITY).toBeLessThan(844);
+  expect((await actionCopy.boundingBox())?.y! + (await actionCopy.boundingBox())?.height!).toBeLessThanOrEqual(844);
   if (!process.env.APC_BASE_URL) {
     await page.addStyleTag({ content: ':root{font-size:32px!important}' });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
@@ -107,16 +110,8 @@ test('@claim:user-note exports the exact user-written note', async ({ page }) =>
   expect(packet.capture.note).toBe(note);
 });
 
-test('@claim:free-export exports sample files without payment or setup', async ({ page }) => {
-  await page.goto('/demo');
-  const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Export JSON' }).click();
-  await download;
-  await expect(page.locator('#export-status')).toContainText('JSON exported');
-});
-
-test('@claim:offline-capture reloads and exports offline after one visit', async ({ page, context }) => {
-  await page.goto('/demo');
+test('@claim:demo-offline-export reloads and exports the sample offline after one visit', async ({ page, context }) => {
+  await page.goto('/?demo=1');
   await page.evaluate(async () => { await navigator.serviceWorker.ready; });
   await page.reload();
   expect(await page.evaluate(async () => (await caches.keys()).includes('apc-site-v2'))).toBe(true);
@@ -133,7 +128,9 @@ test('@claim:demo-private @claim:no-runtime-third-party keeps the sample in its 
   const outside: string[] = [];
   const expectedOrigin = new URL(process.env.APC_BASE_URL || 'http://127.0.0.1:4173').origin;
   page.on('request', (request) => { if (new URL(request.url()).origin !== expectedOrigin) outside.push(request.url()); });
-  await page.goto('/demo');
+  await page.goto('/?demo=1');
+  await expect(page.getByRole('status')).toContainText('Demo — sample data, nothing is saved');
+  await expect(page.getByRole('link', { name: 'Download Chrome extension' })).toHaveAttribute('download', '');
   await page.locator('#demo-note').fill('A changed sample note');
   expect(await page.evaluate(() => Object.keys(localStorage))).toEqual(['demo:accessible-page-capture:note']);
   await page.getByRole('button', { name: 'Reset demo' }).click();
