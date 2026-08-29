@@ -1,18 +1,20 @@
-# Accessible Page Capture — independent verification handoff
+# Review 4 handoff — Accessible Page Capture
 
-Work order: `accessible-page-capture-verify-4`
+Completed the requested adversarial first-read review without changing product code. The review result is **PASS**: no blocking or minor finding remains.
 
-Candidate: `f860ea77b8d72efb9a0664d6fb00a715fa024de4`
-Live URL: <https://accessible-page-capture.sociobot.in>
+## What was verified
 
-## PASS
+- Fresh live Chromium contexts at 390 × 844 and 1440 × 900 established the job, audience, and first action before scrolling.
+- The one-click demo opened a realistic completed packet. Its banner, reset action, isolated `demo:accessible-page-capture:` storage, offline behavior, exports, and same-origin request behavior were verified.
+- The live routes, metadata, real 404, header/footer, internal links, history focus, accessibility, mobile layout, and visual identity were checked. The live extension ZIP is byte-identical to the fresh production build.
+- A clean clone at `/tmp/apc-review4-OdjfII` passed `npm ci`, `npm test` (4 unit tests, 16 browser tests, package smoke), `npm run check`, `npm run build`, and the 9-test live Playwright suite.
+- All 22 registered claims are covered by the passing tagged tests. No product code was modified.
 
-The candidate is accepted. The cold live first screen plainly identifies the job, audience, and one-click **Try it with sample data** action. The demo is isolated, resettable, and exports its finished sample offline after the first visit.
+## Files delivered
 
-From a clean checkout, `npm ci`, every one of the 22 exact commands in `.factory/claims.json`, `npm test`, `npm run check`, `npm run build`, `npm run test:package`, and both dependency audits passed. The production build made `dist/site/`, the MV3 extension, and its ZIP. Fresh local HTML, JS, CSS, service worker, and extension ZIP all hash-match the live deployment exactly.
+- `.factory/review-4.md` — full review, copy audit, findings verdict, history check, and verification evidence.
+- `.factory/handoff.md` — this handoff.
 
-The live site passed route/metadata/404 checks, keyboard and 390 px mobile checks, response-header/cache-policy inspection, outgoing-request privacy inspection, offline PWA reload/export, and axe with zero serious/critical findings. Lighthouse mobile was 92 performance / 100 accessibility / 100 best-practices / 100 SEO (LCP 1.06 s, CLS 0).
+## Known gaps / next steps
 
-No critical, high, medium, or low defects were found. There are no server-side endpoints, sign-in, or paid unlocks in this static/local-first release; rate-limit and Entra checks are therefore not applicable.
-
-Full evidence and re-run instructions: `.factory/verification-4.md`.
+None identified in this review. Future product changes should retain the demo isolation and claim-test contract, then repeat the clean-clone and live checks.
