@@ -1,0 +1,9 @@
+/ 200 text/html
+/?demo=1 200 text/html
+/demo 200 text/html
+/privacy 200 text/html
+/terms 200 text/html
+/missing 404 text/html
+/robots.txt 200 text/plain
+/sitemap.xml 200 text/xml
+/downloads/accessible-page-capture-chrome.zip 200 application/zip
