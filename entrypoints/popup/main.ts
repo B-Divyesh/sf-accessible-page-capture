@@ -31,7 +31,7 @@ function landing() {
     <section class="intro" aria-labelledby="page-title">
       <p class="kicker">30-second issue packet</p>
       <h1 id="page-title" tabindex="-1">Record this access barrier</h1>
-      <p>For people who need a product team to replay one blocked web task.</p>
+      <p>For people who need a product team to reproduce one blocked web task.</p>
       ${error ? `<p class="error" role="alert">${escapeHtml(error)}</p>` : ''}
       <button class="primary" id="start">Start 30-second capture</button>
       <p class="after-action">Then return to the page and repeat the blocked step.</p>
@@ -53,7 +53,7 @@ function recording() {
       <p class="recording-state"><span aria-hidden="true">●</span> Recording</p>
       <h1 id="page-title" tabindex="-1">Repeat the blocked step</h1>
       <p class="timer"><span id="seconds">${remainingSeconds()}</span><small> seconds left</small></p>
-      <p>Use the page now. Focus, clicks, and control keys enter the trace.</p>
+      <p>Use the page now. Focus, clicks, and control keys become recorded steps.</p>
       <label for="note">What were you trying to do? <span>(optional)</span></label>
       <textarea id="note" rows="3" maxlength="1000"></textarea>
       <button class="primary" id="stop">Stop and preview</button>
@@ -90,7 +90,7 @@ function preview() {
       <p class="page-url">${escapeHtml(safeUrl(session.pageUrl))}</p>
       <label for="note">What were you trying to do? <span>(optional)</span></label>
       <textarea id="note" rows="3" maxlength="1000">${escapeHtml(session.note)}</textarea>
-      <h2>${session.events.length} trace ${session.events.length === 1 ? 'event' : 'events'}</h2>
+      <h2>${session.events.length} recorded ${session.events.length === 1 ? 'step' : 'steps'}</h2>
       ${events}
       <div class="button-row">
         <button class="primary" id="markdown">Export Markdown</button>
@@ -120,7 +120,7 @@ async function stopCapture() {
 }
 
 async function discardCapture() {
-  if (session?.events.length && !window.confirm('Discard this capture and its trace?')) return;
+  if (session?.events.length && !window.confirm('Discard this capture and its recorded steps?')) return;
   await message({ type: 'DISCARD_CAPTURE' });
   session = undefined; error = ''; landing();
 }

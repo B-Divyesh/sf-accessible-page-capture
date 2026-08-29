@@ -26,6 +26,15 @@ test('landing routes and mobile layout are accessible', async ({ page }) => {
   const actionCopy = page.locator('.hero-action');
   expect((await actionCopy.boundingBox())?.y ?? Number.POSITIVE_INFINITY).toBeLessThan(844);
   expect((await actionCopy.boundingBox())?.y! + (await actionCopy.boundingBox())?.height!).toBeLessThanOrEqual(844);
+  expect((await actionCopy.boundingBox())?.y! + (await actionCopy.boundingBox())?.height!)
+    .toBeLessThanOrEqual((await page.locator('.hero-art').boundingBox())?.y ?? 0);
+  const visibleWordmark = await page.locator('.wordmark span').nth(1).evaluate((element) => ({
+    text: (element as HTMLElement).innerText,
+    breakDisplay: getComputedStyle(element.querySelector('br')!).display
+  }));
+  expect(visibleWordmark.text).toMatch(/^Accessible\s+Page Capture$/i);
+  expect(visibleWordmark.breakDisplay).not.toBe('none');
+  await expect(page.locator('footer')).not.toContainText('Hero art generated for this product.');
   if (!process.env.APC_BASE_URL) {
     await page.addStyleTag({ content: ':root{font-size:32px!important}' });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
@@ -33,6 +42,49 @@ test('landing routes and mobile layout are accessible', async ({ page }) => {
   await page.reload();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Skip to main content' })).toBeFocused();
+});
+
+test('route metadata, history focus, announcements, legal links, and errors are production-ready', async ({ page, request }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  const routes = [
+    { path: '/', title: 'Accessible Page Capture — Report web access barriers', canonical: '/' },
+    { path: '/?demo=1', title: 'Demo — Accessible Page Capture', canonical: '/demo' },
+    { path: '/demo', title: 'Demo — Accessible Page Capture', canonical: '/demo' },
+    { path: '/privacy', title: 'Privacy — Accessible Page Capture', canonical: '/privacy' },
+    { path: '/terms', title: 'Terms — Accessible Page Capture', canonical: '/terms' }
+  ];
+  for (const route of routes) {
+    await page.goto(route.path);
+    await expect(page).toHaveTitle(route.title);
+    expect(route.title.length).toBeLessThanOrEqual(60);
+    const description = await page.locator('meta[name="description"]').getAttribute('content');
+    expect(description?.length).toBeGreaterThan(0);
+    expect(description?.length).toBeLessThanOrEqual(155);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `https://accessible-page-capture.sociobot.in${route.canonical}`);
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', route.title);
+    await expect(page.locator('meta[property="og:description"]')).toHaveAttribute('content', description!);
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', `https://accessible-page-capture.sociobot.in${route.canonical}`);
+    await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', route.title);
+    await expect(page.locator('meta[name="twitter:description"]')).toHaveAttribute('content', description!);
+    await expect(page.locator('footer').getByRole('link', { name: 'Privacy' })).toHaveAttribute('href', '/privacy');
+    await expect(page.locator('footer').getByRole('link', { name: 'Terms' })).toHaveAttribute('href', '/terms');
+  }
+
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Privacy' }).first().click();
+  await expect(page).toHaveURL(/\/privacy$/);
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+  await expect(page.locator('#route-status')).toHaveText('Your capture stays under your control');
+  await page.goBack();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+  await expect(page.locator('#route-status')).toHaveText('Record a blocked web task as an issue packet');
+
+  for (const path of ['/privacy', '/terms', '/demo', '/downloads/accessible-page-capture-chrome.zip', '/robots.txt', '/sitemap.xml']) {
+    expect((await request.get(path)).status(), path).toBe(200);
+  }
+  expect(errors).toEqual([]);
 });
 
 test('production routes, download, and touch targets meet the release response policy', async ({ page, request }) => {
@@ -63,14 +115,14 @@ test('production routes, download, and touch targets meet the release response p
   await expect(page.locator('.hero-art')).toHaveCSS('transform', 'none');
 });
 
-test('@claim:markdown-json exports usable Markdown and JSON', async ({ page }) => {
+test('the demo exports usable Markdown and JSON', async ({ page }) => {
   await page.goto('/demo');
   const markdown = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Export Markdown' }).click();
   const markdownFile = await markdown;
   expect(markdownFile.suggestedFilename()).toBe('sample-access-barrier.md');
   const markdownBody = await (await import('node:fs/promises')).readFile(await markdownFile.path() as string, 'utf8');
-  expect(markdownBody).toContain('# Accessibility barrier report');
+  expect(markdownBody).toContain('# Access barrier issue packet');
   expect(markdownBody).toContain('Typed value redacted');
   const json = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Export JSON' }).click();
@@ -114,7 +166,7 @@ test('@claim:demo-offline-export reloads and exports the sample offline after on
   await page.goto('/?demo=1');
   await page.evaluate(async () => { await navigator.serviceWorker.ready; });
   await page.reload();
-  expect(await page.evaluate(async () => (await caches.keys()).includes('apc-site-v2'))).toBe(true);
+  expect(await page.evaluate(async () => (await caches.keys()).includes('apc-site-v3'))).toBe(true);
   await context.setOffline(true);
   await page.reload();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Check a captured access barrier');
@@ -133,8 +185,12 @@ test('@claim:demo-private @claim:no-runtime-third-party keeps the sample in its 
   await expect(page.getByRole('link', { name: 'Download Chrome extension' })).toHaveAttribute('download', '');
   await page.locator('#demo-note').fill('A changed sample note');
   expect(await page.evaluate(() => Object.keys(localStorage))).toEqual(['demo:accessible-page-capture:note']);
+  await downloadedText(page, 'Export Markdown');
+  await downloadedText(page, 'Export JSON');
   await page.getByRole('button', { name: 'Reset demo' }).click();
   expect(await page.evaluate(() => localStorage.getItem('demo:accessible-page-capture:note'))).toBeNull();
+  await expect(page.getByRole('button', { name: 'Reset demo' })).toBeFocused();
+  await expect(page.locator('#export-status')).toHaveText('Demo reset. The shipped sample is restored.');
   await expect(page.locator('#demo-note')).toHaveValue(/choose a return date/i);
   expect(outside).toEqual([]);
 });

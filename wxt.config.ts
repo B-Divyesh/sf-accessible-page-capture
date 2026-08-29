@@ -3,7 +3,7 @@ import { defineConfig } from 'wxt';
 export default defineConfig({
   manifest: {
     name: 'Accessible Page Capture',
-    description: 'Record a short focus trace and export a redacted issue packet.',
+    description: 'Record blocked web steps and export a private issue packet.',
     version: '1.0.0',
     permissions: ['storage', 'tabs', 'activeTab', 'downloads'],
     host_permissions: ['<all_urls>'],

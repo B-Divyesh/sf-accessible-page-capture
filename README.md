@@ -1,6 +1,6 @@
 # Accessible Page Capture
 
-Record blocked web steps as a private issue packet.
+Record a blocked web task as a private issue packet.
 
 Accessible Page Capture is a Chrome extension for low-vision workers and their colleagues. It records up to 30 seconds of where focus moved, what you clicked, and which control keys you used. Review the issue packet, add a note, then export Markdown or JSON.
 
@@ -34,7 +34,7 @@ npm run build        # exact production build command
 The build creates:
 
 - `.output/chrome-mv3/` — unpacked Chrome extension
-- `.output/accessible-page-capture-1.0.0-chrome.zip` — extension package
+- `.output/accessible-page-capture-1.0.1-chrome.zip` — extension package
 - `dist/site/index.html` — static deployment root
 - `dist/site/downloads/accessible-page-capture-chrome.zip` — site download
 

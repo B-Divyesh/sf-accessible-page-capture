@@ -4,7 +4,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
-test('@claim:explicit-start @claim:redacted-input @claim:password-redaction @claim:no-page-copy @claim:preview-before-export @claim:no-auto-export @claim:local-storage @claim:no-screenshots @claim:no-capture-network records only after start and keeps private values out of both exports', async () => {
+test('@claim:explicit-start @claim:redacted-input @claim:password-redaction @claim:no-page-copy @claim:preview-before-export @claim:no-auto-export @claim:markdown-json @claim:local-storage @claim:no-screenshots @claim:no-capture-network records only after start and keeps private values out of both exports', async () => {
   const userDataDir = await mkdtemp(join(tmpdir(), 'apc-extension-'));
   const extensionPath = resolve('.output/chrome-mv3');
   const context = await chromium.launchPersistentContext(userDataDir, {
@@ -76,7 +76,7 @@ test('@claim:explicit-start @claim:redacted-input @claim:password-redaction @cla
     expect(exported).not.toContain('RICH-SECRET-9137');
     expect(exported).not.toContain('PRIVATE PAGE BODY 48291');
     expect(downloads).toHaveLength(2);
-    expect(exported).toContain('# Accessibility barrier report');
+    expect(exported).toContain('# Access barrier issue packet');
     expect(exported).toContain('"format": "accessible-page-capture/v1"');
     expect(outsideRequests).toEqual([]);
   } finally {
@@ -124,6 +124,41 @@ test('@claim:offline-capture captures a real extension event and exports it whil
   }
 });
 
+test('@claim:thirty-second-limit stops a real extension capture after 30 seconds', async () => {
+  test.setTimeout(45_000);
+  const userDataDir = await mkdtemp(join(tmpdir(), 'apc-extension-limit-'));
+  const extensionPath = resolve('.output/chrome-mv3');
+  const context = await chromium.launchPersistentContext(userDataDir, {
+    channel: 'chromium', headless: true, acceptDownloads: true,
+    args: [`--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`]
+  });
+  try {
+    let worker = context.serviceWorkers()[0];
+    if (!worker) worker = await context.waitForEvent('serviceworker');
+    const extensionId = new URL(worker.url()).host;
+    const target = await context.newPage();
+    await target.goto('http://127.0.0.1:4173/demo');
+    const popup = await context.newPage();
+    await popup.goto(`chrome-extension://${extensionId}/popup.html`);
+    await popup.getByRole('button', { name: 'Start 30-second capture' }).click();
+    const started = await worker.evaluate(async () => (await chrome.storage.local.get('capture:session'))['capture:session']);
+    expect(started.endsAt - started.startedAt).toBe(30_000);
+    await expect(popup.getByRole('heading', { level: 1 })).toHaveText('Check the issue packet', { timeout: 33_000 });
+    await expect(popup.locator('.notice')).toHaveText('The capture stopped at the 30-second limit.');
+    const stopped = await worker.evaluate(async () => (await chrome.storage.local.get('capture:session'))['capture:session']);
+    expect(stopped.status).toBe('stopped');
+    expect(stopped.stopReason).toBe('limit');
+    expect(stopped.stoppedAt - stopped.startedAt).toBe(30_000);
+    const download = popup.waitForEvent('download');
+    await popup.getByRole('button', { name: 'Export JSON' }).click();
+    const packet = JSON.parse(await readFile(await (await download).path() as string, 'utf8'));
+    expect(Date.parse(packet.capture.stoppedAt) - Date.parse(packet.capture.startedAt)).toBe(30_000);
+  } finally {
+    await context.close();
+    await rm(userDataDir, { recursive: true, force: true });
+  }
+});
+
 test('@claim:free-export exports a real extension packet without a payment step', async () => {
   const userDataDir = await mkdtemp(join(tmpdir(), 'apc-extension-free-export-'));
   const extensionPath = resolve('.output/chrome-mv3');
@@ -146,6 +181,7 @@ test('@claim:free-export exports a real extension packet without a payment step'
     await popup.getByRole('button', { name: 'Start 30-second capture' }).click();
     await target.getByRole('button', { name: 'Export JSON' }).focus();
     await popup.getByRole('button', { name: 'Stop and preview' }).click();
+    await expect(popup.locator('body')).not.toContainText(/pay|checkout|license/i);
     const download = popup.waitForEvent('download');
     await popup.getByRole('button', { name: 'Export JSON' }).click();
     const file = await download;
@@ -177,6 +213,10 @@ test('@claim:no-accessibility-score exports recorded steps without an audit scor
     await target.getByRole('button', { name: 'Export Markdown' }).focus();
     await popup.getByRole('button', { name: 'Stop and preview' }).click();
     await expect(popup.locator('main')).not.toContainText(/score|audit|certif/i);
+    const markdownDownload = popup.waitForEvent('download');
+    await popup.getByRole('button', { name: 'Export Markdown' }).click();
+    const markdown = await readFile(await (await markdownDownload).path() as string, 'utf8');
+    expect(markdown).not.toMatch(/score|audit|certif|compliance/i);
     const download = popup.waitForEvent('download');
     await popup.getByRole('button', { name: 'Export JSON' }).click();
     const packet = JSON.parse(await readFile(await (await download).path() as string, 'utf8')) as Record<string, unknown>;

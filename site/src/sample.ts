@@ -17,7 +17,7 @@ export const samplePacket = {
 };
 
 export function sampleMarkdown(note = samplePacket.note): string {
-  return `# Accessibility barrier report\n\n- Page: ${samplePacket.pageUrl}\n- Page title: ${samplePacket.pageTitle}\n- Captured: ${samplePacket.captured}\n- Duration: ${samplePacket.duration}\n\n## What I was trying to do\n\n${note}\n\n## Interaction trace\n\n${samplePacket.events.map((event, index) => `${index + 1}. ${event.at} ${event.kind}: ${event.label} (${event.role})${event.detail ? ` — ${event.detail}` : ''}`).join('\n')}\n\n## Privacy notes\n\n- Typed values were not recorded.\n- Password values were not recorded.\n- The page content was not copied.\n`;
+  return `# Access barrier issue packet\n\n- Page: ${samplePacket.pageUrl}\n- Page title: ${samplePacket.pageTitle}\n- Captured: ${samplePacket.captured}\n- Duration: ${samplePacket.duration}\n\n## What I was trying to do\n\n${note}\n\n## Recorded steps\n\n${samplePacket.events.map((event, index) => `${index + 1}. ${event.at} ${event.kind}: ${event.label} (${event.role})${event.detail ? ` — ${event.detail}` : ''}`).join('\n')}\n\n## Privacy notes\n\n- Typed values were not recorded.\n- Password values were not recorded.\n- The page content was not copied.\n`;
 }
 
 export function sampleJson(note = samplePacket.note): string {

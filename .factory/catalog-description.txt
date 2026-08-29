@@ -1,1 +1,1 @@
-Record blocked web steps as a private issue packet.
+Record a blocked web task as a private issue packet.

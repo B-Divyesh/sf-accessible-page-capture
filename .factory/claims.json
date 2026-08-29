@@ -52,15 +52,15 @@
     "id": "thirty-second-limit",
     "claim": "Recording stops after 30 seconds.",
     "where": "landing how-it-works, extension first screen, README",
-    "test": "npm run test:unit -- --testNamePattern @claim:thirty-second-limit",
-    "sandbox": "unit fixture with a capture at the exact limit; assert the constant and exported duration are 30 seconds"
+    "test": "npm run test:e2e -- --grep @claim:thirty-second-limit",
+    "sandbox": "fresh Chromium profile with the unpacked extension; start a capture, observe automatic stop, and assert storage plus exported duration equal 30 seconds"
   },
   {
     "id": "markdown-json",
     "claim": "Exports Markdown and JSON.",
     "where": "landing how-it-works, demo, terms, README",
     "test": "npm run test:e2e -- --grep @claim:markdown-json",
-    "sandbox": "fresh demo context; download both files, parse JSON, and inspect Markdown content"
+    "sandbox": "fresh Chromium profile with the unpacked extension; complete a real capture, download both files, parse JSON, and inspect Markdown content"
   },
   {
     "id": "page-context",
@@ -71,7 +71,7 @@
   },
   {
     "id": "ordered-labelled-events",
-    "claim": "The packet keeps time-ordered focus, click, and control-key events with control labels and roles.",
+    "claim": "The packet keeps time-ordered recorded steps for focus, clicks, and control keys with control labels and roles.",
     "where": "landing preview and hero caption, README",
     "test": "npm run test:e2e -- --grep @claim:ordered-labelled-events",
     "sandbox": "fresh demo context; export JSON and assert the sample focus, click, and key events remain ordered and each has a label and role"

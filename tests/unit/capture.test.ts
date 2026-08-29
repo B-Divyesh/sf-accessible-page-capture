@@ -9,7 +9,7 @@ const session: CaptureSession = {
 };
 
 describe('issue packet', () => {
-  it('@claim:thirty-second-limit fixes the capture limit at 30 seconds', () => {
+  it('fixes the capture limit at 30 seconds', () => {
     expect(MAX_CAPTURE_MS).toBe(30_000);
     expect(buildMarkdown(session)).toContain('- Duration: 30 seconds');
   });
@@ -32,7 +32,7 @@ describe('issue packet', () => {
     const json = JSON.parse(buildJson(session));
     expect(json.format).toBe('accessible-page-capture/v1');
     expect(json.capture.events).toHaveLength(1);
-    expect(buildMarkdown(session)).toContain('## Interaction trace');
+    expect(buildMarkdown(session)).toContain('## Recorded steps');
     expect(buildJson(session)).not.toContain('token=secret');
   });
 });

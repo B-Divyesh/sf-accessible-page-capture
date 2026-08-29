@@ -104,7 +104,7 @@ export function eventLine(event: TraceEvent, startedAt: number, index: number): 
 
 export function buildMarkdown(session: CaptureSession, profile?: TeamProfile): string {
   const lines = [
-    '# Accessibility barrier report',
+    '# Access barrier issue packet',
     '',
     `- Page: ${safeUrl(session.pageUrl)}`,
     `- Page title: ${cleanText(session.pageTitle) || '[title unavailable]'}`,
@@ -113,13 +113,13 @@ export function buildMarkdown(session: CaptureSession, profile?: TeamProfile): s
   ];
   if (profile?.teamName) lines.push(`- Team: ${cleanText(profile.teamName)}`);
   if (profile?.routeTo) lines.push(`- Route to: ${cleanText(profile.routeTo)}`);
-  lines.push('', '## What I was trying to do', '', cleanText(session.note, 1000) || '_No note added._', '', '## Interaction trace', '');
+  lines.push('', '## What I was trying to do', '', cleanText(session.note, 1000) || '_No note added._', '', '## Recorded steps', '');
   if (session.events.length) {
     lines.push(...session.events.map((event, index) => eventLine(event, session.startedAt, index)));
   } else {
     lines.push('_No focus or control events were captured._');
   }
-  lines.push('', '## Privacy notes', '', '- Typed values were not recorded.', '- Password values were not recorded.', '- The page content was not copied.', '', '_Created with Accessible Page Capture. This report is evidence, not an accessibility certification._', '');
+  lines.push('', '## Privacy notes', '', '- Typed values were not recorded.', '- Password values were not recorded.', '- The page content was not copied.', '', '_Created with Accessible Page Capture. Review this issue packet before sharing._', '');
   return lines.join('\n');
 }
 

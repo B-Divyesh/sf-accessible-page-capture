@@ -16,7 +16,7 @@ const header = () => `<header class="site-header">
 const footer = () => `<footer class="site-footer">
   <p><strong>Accessible Page Capture</strong><br>Record an access barrier and export a private issue packet.</p>
   <nav aria-label="Footer navigation"><a href="/privacy" data-link>Privacy</a><a href="/terms" data-link>Terms</a><a href="https://hello-factory.sociobot.in" rel="external">Built by Param Factory <span class="sr-only">(external)</span></a></nav>
-  <p class="build">Version 1.0.0 · Build APC-20260828<br>Hero art generated for this product.</p>
+  <p class="build">Version 1.0.1 · Build APC-20260829</p>
 </footer>`;
 
 function traceMarkup() {
@@ -33,7 +33,7 @@ function landing() {
         <div class="hero-action"><a class="button primary" href="/?demo=1" data-link>Try it with sample data</a><p>The demo opens a finished issue packet. Nothing is saved.</p></div>
         <ul class="plain-facts" aria-label="Product facts"><li><b>Private</b> Typed values never enter the packet.</li><li><b>Offline</b> Capture and export work offline.</li><li><b>Free</b> Individual exports cost $0.</li></ul>
       </div>
-      <figure class="hero-art"><picture><source media="(max-width: 700px)" srcset="/art/hero-640.webp"><img src="/art/hero-960.webp" width="960" height="640" alt="A paper browser trace connects three numbered recorded steps to an issue packet." fetchpriority="high" decoding="async"></picture><figcaption>Recorded steps become an issue packet your team can inspect.</figcaption></figure>
+      <figure class="hero-art"><picture><source media="(max-width: 700px)" srcset="/art/hero-640.webp"><img src="/art/hero-960.webp" width="960" height="640" alt="A paper browser window connects three numbered recorded steps to an issue packet." fetchpriority="high" decoding="async"></picture><figcaption>Recorded steps become an issue packet your team can inspect.</figcaption></figure>
     </section>
     <section class="live-preview ruled-section" aria-labelledby="preview-heading">
       <div class="section-intro"><p class="eyebrow">A recorded issue packet</p><h2 id="preview-heading">See each recorded step in order</h2><p>The packet keeps the page address, control labels, timing, and your note. It does not copy the page.</p></div>
@@ -41,7 +41,7 @@ function landing() {
     </section>
     <section id="how" class="how ruled-section" aria-labelledby="how-heading">
       <div class="section-intro"><p class="eyebrow">How it works</p><h2 id="how-heading">Show your team what blocked the task</h2></div>
-      <ol class="steps"><li><span>1</span><div><h3>Start the capture</h3><p>Open the extension on the blocked page. Recording begins only when you start it.</p></div></li><li><span>2</span><div><h3>Repeat the task</h3><p>Use focus, clicks, and control keys for up to 30 seconds. Typed values become a redaction note.</p></div></li><li><span>3</span><div><h3>Check and export</h3><p>Add your goal, preview every event, then export Markdown or JSON.</p></div></li></ol>
+      <ol class="steps"><li><span>1</span><div><h3>Start the capture</h3><p>Open the extension on the blocked page. Recording begins only when you start it.</p></div></li><li><span>2</span><div><h3>Repeat the task</h3><p>Use focus, clicks, and control keys for up to 30 seconds. Typed values become a redaction note.</p></div></li><li><span>3</span><div><h3>Check and export</h3><p>Add your goal, preview every recorded step, then export Markdown or JSON.</p></div></li></ol>
       <a class="button secondary" href="/downloads/accessible-page-capture-chrome.zip" download>Download Chrome extension</a>
     </section>
     <section class="limits ruled-section" aria-labelledby="limits-heading"><div><p class="eyebrow">Before you share</p><h2 id="limits-heading">Check the recorded steps yourself</h2></div><ul><li>The packet shows recorded steps, not an accessibility score.</li><li>It records only the page where you start.</li><li>It does not export a packet without your action.</li><li>Review the packet before sharing it.</li></ul></section>
@@ -51,25 +51,25 @@ function landing() {
 function demo() {
   const note = localStorage.getItem(demoNoteKey) || samplePacket.note;
   return `<div class="demo-banner" role="status"><span><strong>Demo</strong> — sample data, nothing is saved</span><span><button id="reset-demo">Reset demo</button><a href="/downloads/accessible-page-capture-chrome.zip" download>Download Chrome extension</a></span></div>${header()}<main id="main" class="demo-main">
-    <section class="demo-heading" aria-labelledby="page-title"><div><p class="eyebrow">Sample issue packet</p><h1 id="page-title" tabindex="-1">Check a captured access barrier</h1><p>Review the trace, change the note, and export either file.</p></div><div class="demo-stamp" aria-label="Capture complete"><span>6 events</span><strong>18.4s</strong><small>capture complete</small></div></section>
+    <section class="demo-heading" aria-labelledby="page-title"><div><p class="eyebrow">Sample issue packet</p><h1 id="page-title" tabindex="-1">Check a captured access barrier</h1><p>Review the recorded steps, change the note, and export either file.</p></div><div class="demo-stamp" aria-label="Capture complete"><span>6 steps</span><strong>18.4s</strong><small>capture complete</small></div></section>
     <section class="packet" aria-labelledby="packet-heading"><div class="packet-meta"><div><p class="eyebrow">Captured page</p><h2 id="packet-heading">${samplePacket.pageTitle}</h2><p>${samplePacket.pageUrl}</p></div><dl><div><dt>Captured</dt><dd>28 Aug 2026, 09:42 UTC</dd></div><div><dt>Duration</dt><dd>${samplePacket.duration}</dd></div></dl></div>
-      <div class="packet-grid"><div><label for="demo-note">What I was trying to do</label><textarea id="demo-note" rows="5" maxlength="1000">${note}</textarea><p class="save-note">Demo note stays in the separate <code>demo:</code> storage space.</p></div><div><h2>Interaction trace</h2>${traceMarkup()}</div></div>
-      <div class="export-bar"><div><strong>Ready to share</strong><p>Check the note and all six events first.</p></div><button class="button secondary" id="export-md">Export Markdown</button><button class="button secondary" id="export-json">Export JSON</button></div>
+      <div class="packet-grid"><div><label for="demo-note">What I was trying to do</label><textarea id="demo-note" rows="5" maxlength="1000">${note}</textarea><p class="save-note">Demo note stays in the separate <code>demo:</code> storage space.</p></div><div><h2>Recorded steps</h2>${traceMarkup()}</div></div>
+      <div class="export-bar"><div><strong>Ready to share</strong><p>Check the note and all six recorded steps first.</p></div><button class="button secondary" id="export-md">Export Markdown</button><button class="button secondary" id="export-json">Export JSON</button></div>
       <p id="export-status" class="export-status" aria-live="polite"></p>
     </section>
   </main>${footer()}`;
 }
 
 function privacy() {
-  return `${header()}<main id="main" class="prose-page"><p class="eyebrow">Policy · 28 August 2026</p><h1 id="page-title" tabindex="-1">Your capture stays under your control</h1><p class="lede">Accessible Page Capture stores active and finished captures in your browser.</p><h2>What the extension stores</h2><p>It stores the page address, page title, control labels, event timing, and your note. It does not store typed values, password values, screenshots, or copied page content.</p><h2>When data leaves your device</h2><p>Exports leave only when you save or share them. Capture and export do not make an outside request.</p><h2>Demo data</h2><p>The website demo uses the <code>demo:accessible-page-capture:</code> storage prefix. Reset demo removes that data. Demo data never enters extension storage.</p><h2>Delete your data</h2><p>Discard the current capture in the extension. You can also remove the extension to clear its local storage.</p><h2>Contact</h2><p>Email <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a> with a privacy question.</p></main>${footer()}`;
+  return `${header()}<main id="main" class="prose-page"><p class="eyebrow">Policy · 29 August 2026</p><h1 id="page-title" tabindex="-1">Your capture stays under your control</h1><p class="lede">Accessible Page Capture stores active and finished captures in your browser.</p><h2>What the extension stores</h2><p>It stores the page address, page title, control labels, step timing, and your note. It does not store typed values, password values, screenshots, or copied page content.</p><h2>When data leaves your device</h2><p>Exports leave only when you save or share them. Capture and export do not make an outside request.</p><h2>Demo data</h2><p>The website demo uses the <code>demo:accessible-page-capture:</code> storage prefix. Reset demo removes that data. Demo data never enters extension storage.</p><h2>Delete your data</h2><p>Discard the current capture in the extension. You can also remove the extension to clear its local storage.</p><h2>Contact</h2><p>Email <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a> with a privacy question.</p></main>${footer()}`;
 }
 
 function terms() {
-  return `${header()}<main id="main" class="prose-page"><p class="eyebrow">Terms · 28 August 2026</p><h1 id="page-title" tabindex="-1">Use the packet as supporting evidence</h1><p class="lede">These terms cover the website, browser extension, and exported packets.</p><h2>What the product provides</h2><p>The extension records a short interaction trace after you start it. It produces Markdown and JSON files for your review.</p><h2>Your responsibility</h2><p>Review each packet before sharing it. Do not use the extension to collect information you lack permission to handle.</p><h2>No certification</h2><p>A packet can help reproduce a barrier. It is not an audit, legal opinion, or accessibility certification.</p><h2>Availability</h2><p>The software is provided under the MIT License without a warranty. See the repository license for the complete text.</p><h2>Contact</h2><p>Email <a href="mailto:support@sociobot.in">support@sociobot.in</a> with a terms question.</p></main>${footer()}`;
+  return `${header()}<main id="main" class="prose-page"><p class="eyebrow">Terms · 29 August 2026</p><h1 id="page-title" tabindex="-1">Use the packet as supporting evidence</h1><p class="lede">These terms cover the website, browser extension, and exported packets.</p><h2>What the product provides</h2><p>The extension records your steps for up to 30 seconds after you start it. It produces Markdown and JSON files for your review.</p><h2>Your responsibility</h2><p>Review each packet before sharing it. Do not use the extension to collect information you lack permission to handle.</p><h2>No certification</h2><p>A packet can help reproduce a barrier. It is not an audit, legal opinion, or accessibility certification.</p><h2>Availability</h2><p>The software is provided under the MIT License without a warranty. See the repository license for the complete text.</p><h2>Contact</h2><p>Email <a href="mailto:support@sociobot.in">support@sociobot.in</a> with a terms question.</p></main>${footer()}`;
 }
 
 function notFound() {
-  return `${header()}<main id="main" class="not-found"><div class="lost-sheet" aria-hidden="true"><span>4</span><span>0</span><span>4</span></div><p class="eyebrow">Page not found</p><h1 id="page-title" tabindex="-1">This report slipped out of the stack</h1><p>The address does not match a page here.</p><a class="button primary" href="/" data-link>Return home</a></main>${footer()}`;
+  return `${header()}<main id="main" class="not-found"><div class="lost-sheet" aria-hidden="true"><span>4</span><span>0</span><span>4</span></div><p class="eyebrow">Page not found</p><h1 id="page-title" tabindex="-1">We could not find this page</h1><p>The address does not match a page here.</p><a class="button primary" href="/" data-link>Return home</a></main>${footer()}`;
 }
 
 function routeFor(path: string, search: string): Route {
@@ -88,7 +88,13 @@ function setMeta(route: Route) {
   } as Record<Route, [string, string]>)[route];
   document.title = values[0];
   document.querySelector<HTMLMetaElement>('meta[name="description"]')!.content = values[1];
-  canonical.href = `https://accessible-page-capture.sociobot.in${route === '/404' ? location.pathname : route}`;
+  const routeUrl = `https://accessible-page-capture.sociobot.in${route === '/404' ? location.pathname : route}`;
+  canonical.href = routeUrl;
+  document.querySelector<HTMLMetaElement>('meta[property="og:title"]')!.content = values[0];
+  document.querySelector<HTMLMetaElement>('meta[property="og:description"]')!.content = values[1];
+  document.querySelector<HTMLMetaElement>('meta[property="og:url"]')!.content = routeUrl;
+  document.querySelector<HTMLMetaElement>('meta[name="twitter:title"]')!.content = values[0];
+  document.querySelector<HTMLMetaElement>('meta[name="twitter:description"]')!.content = values[1];
 }
 
 function download(content: string, filename: string, type: string) {
@@ -100,7 +106,12 @@ function download(content: string, filename: string, type: string) {
 function bindDemo() {
   const note = document.querySelector<HTMLTextAreaElement>('#demo-note')!;
   note.addEventListener('input', () => localStorage.setItem(demoNoteKey, note.value));
-  document.querySelector<HTMLButtonElement>('#reset-demo')!.addEventListener('click', () => { localStorage.removeItem(demoNoteKey); render(false); });
+  document.querySelector<HTMLButtonElement>('#reset-demo')!.addEventListener('click', () => {
+    localStorage.removeItem(demoNoteKey);
+    render(false);
+    document.querySelector<HTMLButtonElement>('#reset-demo')?.focus();
+    document.querySelector('#export-status')!.textContent = 'Demo reset. The shipped sample is restored.';
+  });
   document.querySelector<HTMLButtonElement>('#export-md')!.addEventListener('click', () => { download(sampleMarkdown(note.value), 'sample-access-barrier.md', 'text/markdown'); document.querySelector('#export-status')!.textContent = 'Markdown exported. Your sample data stays in demo mode.'; });
   document.querySelector<HTMLButtonElement>('#export-json')!.addEventListener('click', () => { download(sampleJson(note.value), 'sample-access-barrier.json', 'application/json'); document.querySelector('#export-status')!.textContent = 'JSON exported. Your sample data stays in demo mode.'; });
 }
